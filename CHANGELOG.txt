@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+0.0.2a
+------
+- Internal refactoring.  Still completely untested!
+
 0.0.1a
 ------
 - First version.  Completely untested until I can get hold of a Raspberry Pi!
