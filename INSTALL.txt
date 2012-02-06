@@ -1,0 +1,4 @@
+python setup.py install
+  or
+python3 setup.py install
+
