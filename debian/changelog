@@ -1,0 +1,5 @@
+rpi.gpio (0.1.0-1) unstable; urgency=low
+
+  * Initial release
+
+ -- Ben Croston <ben@croston.org>  Sun, 13 May 2012 18:02:06 +0100
