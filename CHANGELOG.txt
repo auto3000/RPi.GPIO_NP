@@ -1,5 +1,13 @@
 Change Log
 ==========
+0.3.0a
+-----
+- Rewritten as a C extension
+- Now uses /dev/mem and SoC registers instead of /sys/class/gpio
+- Faster!
+- Make call to GPIO.setmode() mandatory
+- Added GPIO.HIGH and GPIO.LOW constants
+
 0.2.0
 -----
 - Changed status from alpha to beta
