@@ -1,7 +1,12 @@
 Change Log
 ==========
+0.3.1a
+------
+- Fixed critical bug with swapped high/low state on outputs
+- Added pull-up / pull-down setup functionality for inputs
+
 0.3.0a
------
+------
 - Rewritten as a C extension
 - Now uses /dev/mem and SoC registers instead of /sys/class/gpio
 - Faster!

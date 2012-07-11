@@ -18,19 +18,18 @@ Example Usage :
     # to use Raspberry Pi board pin numbers
     GPIO.setmode(GPIO.BOARD)
 
-    # set up the GPIO channels - one input and one output
-    GPIO.setup(11, GPIO.IN)
+    # set up GPIO output channel
     GPIO.setup(12, GPIO.OUT)
 
-    # input from pin 11
-    input_value = GPIO.input(11)
-
-    # output to pin 12
+    # set RPi board pin 12 high
     GPIO.output(12, GPIO.HIGH)
 
-    # the same script as above but using BCM GPIO 00..nn numbers
+    # set up GPIO input with pull-up control
+    #   (pull_up_down be PUD_OFF, PUD_UP or PUD_DOWN, default PUD_OFF)
+    GPIO.setup(11, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+    # input from RPi board pin 11
+    input_value = GPIO.input(11)
+
+    # to change to BCM GPIO numbering
     GPIO.setmode(GPIO.BCM)
-    GPIO.setup(17, GPIO.IN)
-    GPIO.setup(18, GPIO.OUT)
-    input_value = GPIO.input(17)
-    GPIO.output(18, GPIO.HIGH)
