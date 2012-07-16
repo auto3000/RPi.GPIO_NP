@@ -1,5 +1,10 @@
 Change Log
 ==========
+0.3.2a
+------
+- Added test/test.py
+- Converted debian to armhf
+
 0.3.1a
 ------
 - Fixed critical bug with swapped high/low state on outputs

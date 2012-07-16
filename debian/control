@@ -9,14 +9,14 @@ X-Python3-Version: >= 3.2
 Homepage: http://code.google.com/p/raspberry-gpio-python/
 
 Package: python-rpi.gpio
-Architecture: armel
+Architecture: armhf
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
 Description: Python GPIO module for Raspberry Pi
  This is the RPi.GPIO Python module, for supporting GPIO on a
  Raspberry Pi
 
 Package: python3-rpi.gpio
-Architecture: armel
+Architecture: armhf
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${python3:Depends}
 Description: Python 3 GPIO module for Raspberry Pi
  This is the RPi.GPIO Python 3 module, for supporting GPIO on a
