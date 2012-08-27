@@ -24,6 +24,11 @@ int setup(void);
 void setup_gpio(int gpio, int direction, int pud);
 void output_gpio(int gpio, int value);
 int input_gpio(int gpio);
+void set_rising_event(int gpio, int enable);
+void set_falling_event(int gpio, int enable);
+void set_high_event(int gpio, int enable);
+void set_low_event(int gpio, int enable);
+int event_detected(int gpio);
 void cleanup(void);
 
 #define SETUP_OK          0

@@ -1,9 +1,17 @@
 Change Log
 ==========
+
 0.3.2a
 ------
 - Added test/test.py
 - Converted debian to armhf
+- Added cleanup() function and removed automatic reset functionality on program exit
+- Added set_rising_event()
+- Added set_falling_event()
+- Added set_high_event()
+- Added set_low_event()
+- Added event_detected()
+- Fixed C function short_wait() (thanks to Thibault Porteboeuf)
 
 0.3.1a
 ------

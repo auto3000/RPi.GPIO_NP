@@ -1,6 +1,6 @@
 import distribute_setup
 distribute_setup.use_setuptools()
-from setuptools import setup, find_packages, Extension
+from setuptools import setup, Extension
 
 classifiers = ['Development Status :: 3 - Alpha',
                'Operating System :: POSIX :: Linux',
@@ -15,7 +15,6 @@ classifiers = ['Development Status :: 3 - Alpha',
 
 setup(name             = 'RPi.GPIO',
       version          = '0.3.2a',
-      packages         = find_packages(),
       author           = 'Ben Croston',
       author_email     = 'ben@croston.org',
       description      = 'A class to control Raspberry Pi GPIO channels',

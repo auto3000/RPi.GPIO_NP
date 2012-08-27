@@ -17,10 +17,10 @@ python setup.py sdist
 mkdir ~/temp
 cd ~/temp
 cp ~/raspberry-gpio-python/dist/*.gz .
-tar xvfz RPi.GPIO-0.3.1a.tar.gz
-mv RPi.GPIO-0.3.1a rpi.gpio-0.3.1a
-cd rpi.gpio-0.3.1a
-dh_make -s --email ben@croston.org -f ../RPi.GPIO-0.3.1a.tar.gz
+tar xvfz RPi.GPIO-0.3.2a.tar.gz
+mv RPi.GPIO-0.3.2a rpi.gpio-0.3.2a
+cd rpi.gpio-0.3.2a
+dh_make -s --email ben@croston.org -f ../RPi.GPIO-0.3.2a.tar.gz
 
 # delete debian directory and replace it with my copy (from hg)
 rm -rf debian

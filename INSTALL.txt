@@ -1,11 +1,11 @@
 Make sure that you have the Python development source installed first!
-On Debian:
-$ apt-get install python-dev
+On Raspbian:
+$ sudo apt-get install python-dev
    or
-$ apt-get install python3-dev
+$ sudo apt-get install python3-dev
 
 To install the module:
 
-$ python setup.py install
+$ sudo python setup.py install
   or
-$ python3 setup.py install
+$ sudo python3 setup.py install
