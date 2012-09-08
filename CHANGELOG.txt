@@ -1,17 +1,20 @@
 Change Log
 ==========
 
-0.3.2a
+0.4.0a
 ------
-- Added test/test.py
-- Converted debian to armhf
+- Added support for Revision 2 boards
+- Added RPI_REVISION
 - Added cleanup() function and removed automatic reset functionality on program exit
+- Added get_function() to read existing GPIO channel functionality (suggestion from Eric Ptak <trouch@trouch.com>)
 - Added set_rising_event()
 - Added set_falling_event()
 - Added set_high_event()
 - Added set_low_event()
 - Added event_detected()
-- Fixed C function short_wait() (thanks to Thibault Porteboeuf)
+- Added test/test.py
+- Converted debian to armhf
+- Fixed C function short_wait() (thanks to Thibault Porteboeuf <thibaultporteboeuf@gmail.com>)
 
 0.3.1a
 ------

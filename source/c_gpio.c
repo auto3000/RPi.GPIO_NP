@@ -187,6 +187,17 @@ void setup_gpio(int gpio, int direction, int pud)
         *(gpio_map+offset) = (*(gpio_map+offset) & ~(7<<shift));
 }
 
+// Contribution by Eric Ptak <trouch@trouch.com>
+int gpio_function(int gpio)
+{
+   int offset = FSEL_OFFSET + (gpio/10);
+   int shift = (gpio%10)*3;
+   int value = *(gpio_map+offset);
+   value >>= shift;
+   value &= 7;
+   return value; // 0=input, 1=output, 4=alt0
+}
+
 void output_gpio(int gpio, int value)
 {
     int offset, shift;
