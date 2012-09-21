@@ -47,6 +47,7 @@ static int gpio_direction[54];
 static const int pin_to_gpio_rev1[27] = {-1, -1, -1, 0, -1, 1, -1, 4, 14, -1, 15, 17, 18, 21, -1, 22, 23, -1, 24, 10, -1, 9, 25, 11, 8, -1, 7};
 static const int pin_to_gpio_rev2[27] = {-1, -1, -1, 2, -1, 3, -1, 4, 14, -1, 15, 17, 18, 27, -1, 22, 23, -1, 24, 10, -1, 9, 25, 11, 8, -1, 7};
 static const int (*pin_to_gpio)[27];
+static int gpio_warnings = 1;
 
 #define MODE_UNKNOWN -1
 #define BOARD        10
@@ -149,11 +150,10 @@ static PyObject *py_setup_channel(PyObject *self, PyObject *args, PyObject *kwar
 {
    int gpio, channel, direction;
    int pud = PUD_OFF;
-   int force = 0;
-   static char *kwlist[] = {"channel", "direction", "pull_up_down", "force", NULL};
+   static char *kwlist[] = {"channel", "direction", "pull_up_down", NULL};
    int func;
    
-   if (!PyArg_ParseTupleAndKeywords(args, kwargs, "ii|ii", kwlist, &channel, &direction, &pud, &force))
+   if (!PyArg_ParseTupleAndKeywords(args, kwargs, "ii|i", kwlist, &channel, &direction, &pud))
       return NULL;
 
    if (direction != INPUT && direction != OUTPUT)
@@ -199,12 +199,11 @@ static PyObject *py_setup_channel(PyObject *self, PyObject *args, PyObject *kwar
    }
 
    func = gpio_function(gpio);
-   if (!force &&                                    // warnings enabled and
+   if (gpio_warnings &&                             // warnings enabled and
        ((func != 0 && func != 1) ||                 // (already one of the alt functions or
        (gpio_direction[gpio] == -1 && func == 1)))  // already an output not set from this program)
    {
-      PyErr_SetString(InvalidChannelException, "This channel is in use.  Try GPIO.setup( ... , force=1) to override");
-      return NULL;
+      PyErr_WarnEx(NULL, "This channel is already in use, continuing anyway.  Use GPIO.setwarnings(False) to disable warnings.", 1);
    }
   
 //   printf("Setup GPIO %d direction %d pud %d\n", gpio, direction, pud);
@@ -414,8 +413,17 @@ static PyObject *py_gpio_function(PyObject *self, PyObject *args)
    return func;
 }
 
+// python function setwarnings(state)
+static PyObject *py_setwarnings(PyObject *self, PyObject *args)
+{
+   if (!PyArg_ParseTuple(args, "i", &gpio_warnings))
+      return NULL;
+   Py_INCREF(Py_None);
+   return Py_None;
+}
+
 PyMethodDef rpi_gpio_methods[] = {
-   {"setup", (PyCFunction)py_setup_channel, METH_VARARGS | METH_KEYWORDS, "Set up the GPIO channel,direction and (optional) pull/up down control\nchannel   - Either: RPi board pin number (not BCM GPIO 00..nn number).  Pins start from 1\n            or    : BCM GPIO number\ndirection - INPUT or OUTPUT\n[pull_up_down] - PUD_OFF (default), PUD_UP or PUD_DOWN\n[force] - 0 (default) or 1"},
+   {"setup", (PyCFunction)py_setup_channel, METH_VARARGS | METH_KEYWORDS, "Set up the GPIO channel,direction and (optional) pull/up down control\nchannel   - Either: RPi board pin number (not BCM GPIO 00..nn number).  Pins start from 1\n            or    : BCM GPIO number\ndirection - INPUT or OUTPUT\n[pull_up_down] - PUD_OFF (default), PUD_UP or PUD_DOWN"},
    {"cleanup", py_cleanup, METH_VARARGS, "Clean up by resetting all GPIO channels that have been used by this program to INPUT with no pullup/pulldown and no event detection"},
    {"output", py_output_gpio, METH_VARARGS, "Output to a GPIO channel"},
    {"input", py_input_gpio, METH_VARARGS, "Input from a GPIO channel"},
@@ -426,6 +434,7 @@ PyMethodDef rpi_gpio_methods[] = {
    {"set_low_event", (PyCFunction)py_set_low_event, METH_VARARGS | METH_KEYWORDS, "EXPERIMENTAL.  Set low detection\nchannel   - Either: RPi board pin number (not BCM GPIO 00..nn number).  Pins start from 1\n            or    : BCM GPIO number\n[enable] - True (default) or False"},
    {"event_detected", py_event_detected, METH_VARARGS, "EXPERIMENTAL.  Returns True if an event has occured"},
    {"gpio_function", py_gpio_function, METH_VARARGS, "Return the current GPIO function (IN, OUT, ALT0)"},
+   {"setwarnings", py_setwarnings, METH_VARARGS, "Enable of disable warning messages"},
    {NULL, NULL, 0, NULL}
 };
 
@@ -507,7 +516,7 @@ PyMODINIT_FUNC initGPIO(void)
    
    pud_down = Py_BuildValue("i", PUD_DOWN);
    PyModule_AddObject(module, "PUD_DOWN", pud_down);
-   
+      
    // detect board revision and set up accordingly
    revision = get_rpi_revision();
    if (revision == -1)

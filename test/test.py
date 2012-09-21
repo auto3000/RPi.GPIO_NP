@@ -55,23 +55,23 @@ def test_gpio_function():
                         func = 'UNKNOWN'
                 print('chan=%s func=%s'%(chan,func))
 
-def test_force():
-        test_passed = False
-        try:
-                GPIO.setup(8, GPIO.IN)   # is ALT0 serial TXD by default
-        except GPIO.InvalidChannelException:
-                test_passed = True
-        if test_passed:
-                print('Test passed')
-        else:
-                print('Test failed')
+def test_warnings():
+        GPIO.setwarnings(False)
+        print('No warning should be produced vvv')
+        GPIO.setup(8, GPIO.OUT)   # is ALT0 serial TXD by default
+        print('Done!')
+        GPIO.setwarnings(True)
+        print('Warning should be produced vvv')
+        GPIO.setup(10, GPIO.OUT)  # is ALT0 serial RXD by default
+        print('Done!')
 
 def test_setup():
         GPIO.setmode(GPIO.BOARD)
         GPIO.setup(16, GPIO.OUT)
         GPIO.setup(18, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-
+def test_board_revision():
+    print('Board revision -', GPIO.RPI_REVISION)
 
 # main program starts here
 while 1:
@@ -83,7 +83,8 @@ while 1:
         print('H - High detect')
         print('L - Low detect')
         print('G - gpio_function')
-        print('C - forCe setup gpio')
+        print('B - Board revision')
+        print('W - Test warnings')
         print('X - eXit')
         command = input('Enter your choice: ').upper()
 
@@ -103,8 +104,10 @@ while 1:
                 test_low()
         elif command.startswith('G'):
                 test_gpio_function()
-        elif command.startswith('C'):
-                test_force()
+        elif command.startswith('W'):
+                test_warnings()
+        elif command.startswith('B'):
+                test_board_revision()
         elif command.startswith('X'):
                 break
 
