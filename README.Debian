@@ -3,7 +3,7 @@
 # There may be dependencies I've forgotten to mention!
 # Version numbers may change as well!
 
-VERSION=0.4.1a
+VERSION=0.4.2a
 export DEBFULLNAME="Ben Croston"
 export DEBEMAIL="ben@croston.org"
 
@@ -15,7 +15,7 @@ mkdir ~/temp
 cd ~/temp
 
 # get development source
-#hg clone https://code.google.com/p/raspberry-gpio-python/
+hg clone https://code.google.com/p/raspberry-gpio-python/
 cd raspberry-gpio-python
 
 # create tarball (in dist directory)
