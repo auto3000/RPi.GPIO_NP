@@ -49,6 +49,7 @@ static const int pin_to_gpio_rev1[27] = {-1, -1, -1, 0, -1, 1, -1, 4, 14, -1, 15
 static const int pin_to_gpio_rev2[27] = {-1, -1, -1, 2, -1, 3, -1, 4, 14, -1, 15, 17, 18, 27, -1, 22, 23, -1, 24, 10, -1, 9, 25, 11, 8, -1, 7};
 static const int (*pin_to_gpio)[27];
 static int gpio_warnings = 1;
+static int setup_error = 0;
 
 #define MODE_UNKNOWN -1
 #define BOARD        10
@@ -104,7 +105,7 @@ static PyObject *py_cleanup(PyObject *self, PyObject *args)
             setup_gpio(i, INPUT, PUD_OFF);
             gpio_direction[i] = -1;
         }
-    
+
    Py_INCREF(Py_None);
    return Py_None;
 }
@@ -154,9 +155,15 @@ static PyObject *py_setup_channel(PyObject *self, PyObject *args, PyObject *kwar
    int initial = -1;
    static char *kwlist[] = {"channel", "direction", "pull_up_down", "initial", NULL};
    int func;
-   
+
    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "ii|ii", kwlist, &channel, &direction, &pud, &initial))
       return NULL;
+
+   if (setup_error)
+   {
+      PyErr_SetString(SetupException, "Module not imported correctly!");
+      return NULL;
+   }
 
    if (direction != INPUT && direction != OUTPUT)
    {
@@ -230,7 +237,7 @@ static PyObject *py_output_gpio(PyObject *self, PyObject *args)
 {
    int gpio, channel, value;
 
-   if (!PyArg_ParseTuple(args, "ii", &channel, &value)) 
+   if (!PyArg_ParseTuple(args, "ii", &channel, &value))
       return NULL;
 
    if (gpio_mode != BOARD && gpio_mode != BCM)
@@ -296,6 +303,12 @@ static PyObject *setmode(PyObject *self, PyObject *args)
 {
    if (!PyArg_ParseTuple(args, "i", &gpio_mode))
       return NULL;
+
+   if (setup_error)
+   {
+      PyErr_SetString(SetupException, "Module not imported correctly!");
+      return NULL;
+   }
 
    if (gpio_mode != BOARD && gpio_mode != BCM)
    {
@@ -406,10 +419,16 @@ static PyObject *py_gpio_function(PyObject *self, PyObject *args)
 {
    int gpio, f;
    PyObject *func;
-   
+
    if (!PyArg_ParseTuple(args, "i", &gpio))
       return NULL;
-      
+
+   if (setup_error)
+   {
+      PyErr_SetString(SetupException, "Module not imported correctly!");
+      return NULL;
+   }
+
    f = gpio_function(gpio);
    switch (f)
    {
@@ -425,6 +444,13 @@ static PyObject *py_setwarnings(PyObject *self, PyObject *args)
 {
    if (!PyArg_ParseTuple(args, "i", &gpio_warnings))
       return NULL;
+
+   if (setup_error)
+   {
+      PyErr_SetString(SetupException, "Module not imported correctly!");
+      return NULL;
+   }
+
    Py_INCREF(Py_None);
    return Py_None;
 }
@@ -505,7 +531,7 @@ PyMODINIT_FUNC initGPIO(void)
 
    input = Py_BuildValue("i", INPUT);
    PyModule_AddObject(module, "IN", input);
-   
+
    alt0 = Py_BuildValue("i", ALT0);
    PyModule_AddObject(module, "ALT0", alt0);
 
@@ -514,21 +540,22 @@ PyMODINIT_FUNC initGPIO(void)
 
    bcm = Py_BuildValue("i", BCM);
    PyModule_AddObject(module, "BCM", bcm);
-   
+
    pud_off = Py_BuildValue("i", PUD_OFF);
    PyModule_AddObject(module, "PUD_OFF", pud_off);
-   
+
    pud_up = Py_BuildValue("i", PUD_UP);
    PyModule_AddObject(module, "PUD_UP", pud_up);
-   
+
    pud_down = Py_BuildValue("i", PUD_DOWN);
    PyModule_AddObject(module, "PUD_DOWN", pud_down);
-      
+
    // detect board revision and set up accordingly
    revision = get_rpi_revision();
    if (revision == -1)
    {
       PyErr_SetString(SetupException, "This module can only be run on a Raspberry Pi!");
+      setup_error = 1;
 #if PY_MAJOR_VERSION > 2
       return NULL;
 #else
@@ -548,13 +575,14 @@ PyMODINIT_FUNC initGPIO(void)
    // set up mmaped areas
    if (module_setup() != SETUP_OK )
    {
+      setup_error = 1;
 #if PY_MAJOR_VERSION > 2
       return NULL;
 #else
       return;
 #endif
    }
-      
+
    if (Py_AtExit(cleanup) != 0)
    {
      cleanup();
