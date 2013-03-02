@@ -68,13 +68,13 @@ static int module_setup(void)
    result = setup();
    if (result == SETUP_DEVMEM_FAIL)
    {
-      PyErr_SetString(SetupException, "No access to /dev/mem.  Try running as root!");
+      PyErr_SetString(PyExc_RuntimeError, "No access to /dev/mem.  Try running as root!");
       return SETUP_DEVMEM_FAIL;
    } else if (result == SETUP_MALLOC_FAIL) {
       PyErr_NoMemory();
       return SETUP_MALLOC_FAIL;
    } else if (result == SETUP_MMAP_FAIL) {
-      PyErr_SetString(SetupException, "Mmap failed on module import");
+      PyErr_SetString(PyExc_RuntimeError, "Mmap failed on module import");
       return SETUP_MALLOC_FAIL;
    } else { // result == SETUP_OK
       return SETUP_OK;
@@ -214,7 +214,7 @@ static PyObject *py_setup_channel(PyObject *self, PyObject *args, PyObject *kwar
    {
       PyErr_WarnEx(NULL, "This channel is already in use, continuing anyway.  Use GPIO.setwarnings(False) to disable warnings.", 1);
    }
-  
+
 //   printf("Setup GPIO %d direction %d pud %d\n", gpio, direction, pud);
    set_rising_event(gpio, 0);
    set_falling_event(gpio, 0);
@@ -290,7 +290,7 @@ static PyObject *py_input_gpio(PyObject *self, PyObject *args)
 
     if (!verify_input(channel, &gpio))
         return NULL;
-   
+
    //   printf("Input GPIO %d\n", gpio);
    if (input_gpio(gpio))
       Py_RETURN_TRUE;
@@ -326,15 +326,15 @@ static PyObject *py_set_rising_event(PyObject *self, PyObject *args, PyObject *k
 	int channel, gpio;
 	int enable = 1;
     static char *kwlist[] = {"channel", "enable", NULL};
-   
+
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "i|i", kwlist, &channel, &enable))
         return NULL;
 
     if (!verify_input(channel, &gpio))
         return NULL;
-        
+
     set_rising_event(gpio, enable);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -345,7 +345,7 @@ static PyObject *py_set_falling_event(PyObject *self, PyObject *args, PyObject *
 	int channel, gpio;
 	int enable = 1;
     static char *kwlist[] = {"channel", "enable", NULL};
-   
+
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "i|i", kwlist, &channel, &enable))
         return NULL;
 
@@ -353,7 +353,7 @@ static PyObject *py_set_falling_event(PyObject *self, PyObject *args, PyObject *
         return NULL;
 
     set_falling_event(gpio, enable);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -364,7 +364,7 @@ static PyObject *py_set_high_event(PyObject *self, PyObject *args, PyObject *kwa
 	int channel, gpio;
 	int enable = 1;
     static char *kwlist[] = {"channel", "enable", NULL};
-   
+
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "i|i", kwlist, &channel, &enable))
         return NULL;
 
@@ -372,7 +372,7 @@ static PyObject *py_set_high_event(PyObject *self, PyObject *args, PyObject *kwa
         return NULL;
 
     set_high_event(gpio, enable);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -383,7 +383,7 @@ static PyObject *py_set_low_event(PyObject *self, PyObject *args, PyObject *kwar
 	int channel, gpio;
 	int enable = 1;
     static char *kwlist[] = {"channel", "enable", NULL};
-   
+
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "i|i", kwlist, &channel, &enable))
         return NULL;
 
@@ -391,7 +391,7 @@ static PyObject *py_set_low_event(PyObject *self, PyObject *args, PyObject *kwar
         return NULL;
 
     set_low_event(gpio, enable);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -406,7 +406,7 @@ static PyObject *py_event_detected(PyObject *self, PyObject *args)
 
     if (!verify_input(channel, &gpio))
         return NULL;
-   
+
    //   printf("Detect event GPIO %d\n", gpio);
    if (event_detected(gpio))
       Py_RETURN_TRUE;
@@ -554,7 +554,7 @@ PyMODINIT_FUNC initGPIO(void)
    revision = get_rpi_revision();
    if (revision == -1)
    {
-      PyErr_SetString(SetupException, "This module can only be run on a Raspberry Pi!");
+      PyErr_SetString(PyExc_RuntimeError, "This module can only be run on a Raspberry Pi!");
       setup_error = 1;
 #if PY_MAJOR_VERSION > 2
       return NULL;
