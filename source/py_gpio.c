@@ -454,7 +454,7 @@ static PyObject *py_add_event_detect(PyObject *self, PyObject *args, PyObject *k
       return NULL;
    }
 
-   if ((result = add_edge_detect(gpio, edge)) != 0)
+   if ((result = add_edge_detect(gpio, edge)) != 0)   // starts a thread
    {
       if (result == 1)
       {
@@ -765,6 +765,9 @@ PyMODINIT_FUNC initGPIO(void)
    
    // initialise events
    event_initialise();
+
+   if (!PyEval_ThreadsInitialized())
+      PyEval_InitThreads();
 
    // register exit functions - last declared is called first
    if (Py_AtExit(cleanup) != 0)
