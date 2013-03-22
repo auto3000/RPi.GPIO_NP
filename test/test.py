@@ -70,6 +70,24 @@ def test_falling():
     time.sleep(5)
     GPIO.remove_event_detect(18);
 
+def test_switchbounce():
+    global count 
+    count = 0
+
+    def cb():
+        global count
+        count += 1
+        print('Switch pressed %s!'%count)
+        
+    print('Switch bounce test - Ctrl-C to stop...')
+    GPIO.add_event_detect(18, GPIO.FALLING, callback=cb, bouncetime=200)
+    try:
+        while 1:
+            time.sleep(3600)
+    except KeyboardInterrupt:
+        pass
+    GPIO.remove_event_detect(18);
+
 def test_gpio_function():
     for chan in range(54):
         f = GPIO.gpio_function(chan)
@@ -112,6 +130,7 @@ while 1:
     print('I - Input')
     print('R - Rising edge')
     print('F - Falling edge')
+    print('S - Switchbounce')
     print('G - gpio_function')
     print('B - Board revision')
     print('W - Test warnings')
@@ -129,6 +148,8 @@ while 1:
         test_rising()
     elif command.startswith('F'):
         test_falling()
+    elif command.startswith('S'):
+        test_switchbounce()
     elif command.startswith('G'):
         test_gpio_function()
     elif command.startswith('W'):
