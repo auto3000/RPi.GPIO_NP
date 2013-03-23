@@ -327,6 +327,17 @@ static PyObject *setmode(PyObject *self, PyObject *args)
    Py_INCREF(Py_None);
    return Py_None;
 }
+static unsigned int chan_from_gpio(unsigned int gpio)
+{
+   int chan;
+
+   if (gpio_mode == BCM)
+      return gpio;
+   for (chan=1; chan<28; chan++)
+      if (*(*pin_to_gpio+chan) == gpio)
+         return chan;
+   return -1;
+}
 
 static void run_py_callbacks(int gpio)
 {
@@ -345,7 +356,7 @@ static void run_py_callbacks(int gpio)
          if (cb->bouncetime == 0 || timenow - cb->lastcall > cb->bouncetime*1000 || cb->lastcall == 0 || cb->lastcall > timenow) {
             // run callback
             gstate = PyGILState_Ensure();
-            result = PyObject_CallObject(cb->py_cb, NULL);
+            result = PyObject_CallFunction(cb->py_cb, "i", chan_from_gpio(gpio));
             if (result == NULL && PyErr_Occurred())
             {
                PyErr_Print();

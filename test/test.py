@@ -23,10 +23,10 @@ def test_input():
         return
 
 def test_rising():
-    def cb():
+    def cb(chan):
         xprint('Callback 1 - this should produce an exception')
-    def cb2():
-        print('Callback 2 called')
+    def cb2(chan):
+        print('Callback 2 called - channel %s'%chan)
         
     print('Rising edge test')
     print('5 second sample for event_detected function')
@@ -52,8 +52,8 @@ def test_rising():
     GPIO.wait_for_edge(18, GPIO.RISING)
     
 def test_falling():
-    def cb():
-        print('Callback called!')
+    def cb(chan):
+        print('Callback called - channel %s'%chan)
         
     print('Falling edge test')
     print('5 second sample for event_detected function')
@@ -74,10 +74,10 @@ def test_switchbounce():
     global count 
     count = 0
 
-    def cb():
+    def cb(chan):
         global count
         count += 1
-        print('Switch pressed %s!'%count)
+        print('Switch on channel %s pressed %s!'%(chan,count))
         
     print('Switch bounce test - Ctrl-C to stop...')
     GPIO.add_event_detect(18, GPIO.FALLING, callback=cb, bouncetime=200)
