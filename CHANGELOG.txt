@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+0.5.2a
+------
+- Added software PWM (experimental)
+- Internal refactoring and code tidy up
+
 0.5.1a
 ------
 - Fixed callbacks for multiple GPIOs (issue 28)

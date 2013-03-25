@@ -3,7 +3,7 @@
 # There may be dependencies I've forgotten to mention!
 # Version numbers may change as well!
 
-VERSION=0.5.1a
+VERSION=0.5.2a
 export DEBFULLNAME="Ben Croston"
 export DEBEMAIL="ben@croston.org"
 
