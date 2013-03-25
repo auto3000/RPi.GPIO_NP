@@ -26,10 +26,10 @@ def test_input():
         return
 
 def test_rising():
-    def cb():
+    def cb(chan):
         xprint('Callback 1 - this should produce an exception')
-    def cb2():
-        print('Callback 2 called')
+    def cb2(chan):
+        print('Callback 2 called - channel %s'%chan)
         
     print('Rising edge test')
     print('5 second sample for event_detected function')
@@ -55,8 +55,8 @@ def test_rising():
     GPIO.wait_for_edge(SWITCH_PIN, GPIO.RISING)
     
 def test_falling():
-    def cb():
-        print('Callback called!')
+    def cb(chan):
+        print('Callback called - channel %s'%chan)
         
     print('Falling edge test')
     print('5 second sample for event_detected function')
@@ -71,6 +71,24 @@ def test_falling():
     GPIO.remove_event_detect(SWITCH_PIN);
     GPIO.add_event_detect(SWITCH_PIN, GPIO.FALLING, callback=cb)
     time.sleep(5)
+    GPIO.remove_event_detect(SWITCH_PIN);
+
+def test_switchbounce():
+    global count 
+    count = 0
+
+    def cb(chan):
+        global count
+        count += 1
+        print('Switch on channel %s pressed %s!'%(chan,count))
+        
+    print('Switch bounce test - Ctrl-C to stop...')
+    GPIO.add_event_detect(SWITCH_PIN, GPIO.FALLING, callback=cb, bouncetime=200)
+    try:
+        while 1:
+            time.sleep(3600)
+    except KeyboardInterrupt:
+        pass
     GPIO.remove_event_detect(SWITCH_PIN);
 
 def test_gpio_function():
@@ -134,8 +152,9 @@ while 1:
     print('I - Input')
     print('R - Rising edge')
     print('F - Falling edge')
-    print('S - Software PWM')
+    print('P - Software PWM')
     print('H - Hardware PWM')
+    print('S - Switchbounce')
     print('G - gpio_function')
     print('B - Board revision')
     print('W - Test warnings')
@@ -153,10 +172,12 @@ while 1:
         test_rising()
     elif command.startswith('F'):
         test_falling()
-    elif command.startswith('S'):
+    elif command.startswith('P'):
         test_soft_pwm()
     elif command.startswith('H'):
         test_hard_pwm()
+    elif command.startswith('S'):
+        test_switchbounce()
     elif command.startswith('G'):
         test_gpio_function()
     elif command.startswith('W'):
