@@ -5,9 +5,9 @@ Description: <short summary of the patch>
  information below has been extracted from the changelog. Adjust it or drop
  it.
  .
- rpi.gpio (0.5.2a-1) unstable; urgency=low
+ rpi.gpio (0.5.3a-1) unstable; urgency=low
  .
-   * To match new Python package 0.5.2a
+   * To match new Python package 0.5.3a
 Author: Ben Croston <ben@croston.org>
 
 ---
@@ -23,8 +23,8 @@ Forwarded: <no|not-needed|url proving that it has been forwarded>
 Reviewed-By: <name and email of someone who approved the patch>
 Last-Update: <YYYY-MM-DD>
 
---- rpi.gpio-0.5.2a.orig/setup.py
-+++ rpi.gpio-0.5.2a/setup.py
+--- rpi.gpio-0.5.3a.orig/setup.py
++++ rpi.gpio-0.5.3a/setup.py
 @@ -1,5 +1,3 @@
 -import distribute_setup
 -distribute_setup.use_setuptools()
