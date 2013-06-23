@@ -6,6 +6,7 @@ Change Log
 - Allow pydoc for non-root users (issue 27)
 - Fix add_event_detect error when run as daemon (issue 32)
 - Simplified exception types
+- Changed from distribute to pip
 
 0.5.2a
 ------

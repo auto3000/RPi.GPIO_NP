@@ -32,12 +32,6 @@ dh_make -s -f ../RPi.GPIO-$VERSION.tar.gz
 rm -rf debian
 cp -a ~/temp/raspberry-gpio-python/debian .
 
-# remove distribute from setup.py (first two lines)
-#sed -i '1,2d' setup.py
-
-# create patch
-#dpkg-source --commit
-
 # build .deb files
 debuild -us -uc
 debuild clean
