@@ -116,6 +116,11 @@ def test_warnings():
 
 def test_setup():
     print('Running setup tests...')
+
+    print('GPIO.cleanup() - warning should be produced here vvv')
+    GPIO.cleanup()
+    print('^^^')
+
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(26, GPIO.OUT, initial=GPIO.HIGH) # or True
     if not GPIO.input(26):

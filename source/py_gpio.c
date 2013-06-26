@@ -71,6 +71,7 @@ static int init_module(void)
 static PyObject *py_cleanup(PyObject *self, PyObject *args)
 {
    int i;
+   int found = 0;
 
    if (module_setup && !setup_error)
    {
@@ -84,9 +85,17 @@ static PyObject *py_cleanup(PyObject *self, PyObject *args)
          {
             setup_gpio(i, INPUT, PUD_OFF);
             gpio_direction[i] = -1;
+            found = 1;
          }
       }
    }
+
+   // check if any channels set up - if not warn about misuse of GPIO.cleanup()
+   if (!found && gpio_warnings)
+   {
+      PyErr_WarnEx(NULL, "No channels have been set up yet - nothing to clean up!  Try cleaning up at the end of your program instead!", 1);
+   }
+
    Py_RETURN_NONE;
 }
 
