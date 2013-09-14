@@ -116,17 +116,30 @@ def test_switchbounce():
     GPIO.remove_event_detect(SWITCH_PIN);
 
 def test_gpio_function():
+    GPIO.setmode(GPIO.BCM)
     for chan in range(54):
-        f = GPIO.gpio_function(chan)
-        if f == GPIO.IN:
-            func = 'INPUT'
-        elif f == GPIO.OUT:
-            func = 'OUTPUT'
-        elif f == GPIO.ALT0:
-            func = 'ALT0'
-        else:
-            func = 'UNKNOWN'
-        print('chan=%s func=%s'%(chan,func))
+        try:
+            f = GPIO.gpio_function(chan)
+            if f == GPIO.IN:
+                func = 'INPUT'
+            elif f == GPIO.OUT:
+                func = 'OUTPUT'
+            elif f == GPIO.SERIAL:
+                func = 'SERIAL'
+            elif f == GPIO.I2C:
+                func = 'I2C'
+            elif f == GPIO.SPI:
+                func = 'SPI'
+            elif f == GPIO.PWM:
+                func = 'PWM'        
+            elif f == GPIO.UNKNOWN:
+                func = 'UNKNOWN'
+            else:
+                func = 'ERROR'
+            print('GPIO %s func=%s'%(chan,func))
+        except ValueError: # ignore unused channels
+            pass
+    GPIO.setmode(GPIO.BOARD)
 
 def test_warnings():
     GPIO.setwarnings(False)

@@ -40,8 +40,20 @@ void define_constants(PyObject *module)
    input = Py_BuildValue("i", INPUT);
    PyModule_AddObject(module, "IN", input);
 
-   alt0 = Py_BuildValue("i", ALT0);
-   PyModule_AddObject(module, "ALT0", alt0);
+   pwm = Py_BuildValue("i", PWM);
+   PyModule_AddObject(module, "PWM", pwm);
+
+   serial = Py_BuildValue("i", SERIAL);
+   PyModule_AddObject(module, "SERIAL", serial);
+
+   i2c = Py_BuildValue("i", I2C);
+   PyModule_AddObject(module, "I2C", i2c);
+
+   spi = Py_BuildValue("i", SPI);
+   PyModule_AddObject(module, "SPI", spi);
+
+   unknown = Py_BuildValue("i", MODE_UNKNOWN);
+   PyModule_AddObject(module, "UNKNOWN", unknown);
 
    board = Py_BuildValue("i", BOARD);
    PyModule_AddObject(module, "BOARD", board);

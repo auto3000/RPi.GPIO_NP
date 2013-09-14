@@ -504,30 +504,53 @@ static PyObject *py_wait_for_edge(PyObject *self, PyObject *args)
    Py_RETURN_NONE;
 }
 
-// python function value = gpio_function(gpio)
+// python function value = gpio_function(channel)
 static PyObject *py_gpio_function(PyObject *self, PyObject *args)
 {
    unsigned int gpio;
+   int channel;
    int f;
    PyObject *func;
 
-   if (!PyArg_ParseTuple(args, "i", &gpio))
+   if (!PyArg_ParseTuple(args, "i", &channel))
       return NULL;
 
-   if (setup_error)
-   {
-      PyErr_SetString(PyExc_RuntimeError, "Module not imported correctly!");
-      return NULL;
-   }
-
-   if (!module_setup && (init_module() != SETUP_OK))
-      return NULL;
+   if (get_gpio_number(channel, &gpio))
+       return NULL;
 
    f = gpio_function(gpio);
    switch (f)
    {
       case 0 : f = INPUT;  break;
       case 1 : f = OUTPUT; break;
+      case 4 : switch (gpio)
+               {
+                  case 0 :
+                  case 1 : if (revision == 1) f = I2C; else f = MODE_UNKNOWN;
+                           break;
+                           
+                  case 2 :
+                  case 3 : if (revision == 2) f = I2C; else f = MODE_UNKNOWN;
+                           break;
+                           
+                  case 7 :
+                  case 8 :
+                  case 9 :
+                  case 10 :
+                  case 11 : f = SPI; break;
+
+                  case 14 :
+                  case 15 : f = SERIAL; break;
+
+                  default : f = MODE_UNKNOWN; break;
+               }
+               break;
+
+      case 5 : if (gpio == 18) f = PWM; else f = MODE_UNKNOWN;
+               break;
+
+      default : f = MODE_UNKNOWN; break;
+
    }
    func = Py_BuildValue("i", f);
    return func;
@@ -551,17 +574,17 @@ static PyObject *py_setwarnings(PyObject *self, PyObject *args)
 static const char moduledocstring[] = "GPIO functionality of a Raspberry Pi using Python";
 
 PyMethodDef rpi_gpio_methods[] = {
-   {"setup", (PyCFunction)py_setup_channel, METH_VARARGS | METH_KEYWORDS, "Set up the GPIO channel, direction and (optional) pull/up down control\nchannel        - Either: RPi board pin number (not BCM GPIO 00..nn number).  Pins start from 1\n                 or    : BCM GPIO number\ndirection      - INPUT or OUTPUT\n[pull_up_down] - PUD_OFF (default), PUD_UP or PUD_DOWN\n[initial]      - Initial value for an output channel"},
+   {"setup", (PyCFunction)py_setup_channel, METH_VARARGS | METH_KEYWORDS, "Set up the GPIO channel, direction and (optional) pull/up down control\nchannel        - either board pin number or BCM number depending on which mode is set.\ndirection      - INPUT or OUTPUT\n[pull_up_down] - PUD_OFF (default), PUD_UP or PUD_DOWN\n[initial]      - Initial value for an output channel"},
    {"cleanup", py_cleanup, METH_VARARGS, "Clean up by resetting all GPIO channels that have been used by this program to INPUT with no pullup/pulldown and no event detection"},
-   {"output", py_output_gpio, METH_VARARGS, "Output to a GPIO channel\ngpio  - gpio channel\nvalue - 0/1 or False/True or LOW/HIGH"},
-   {"input", py_input_gpio, METH_VARARGS, "Input from a GPIO channel.  Returns HIGH=1=True or LOW=0=False\ngpio - gpio channel"},
+   {"output", py_output_gpio, METH_VARARGS, "Output to a GPIO channel\nchannel - either board pin number or BCM number depending on which mode is set.\nvalue   - 0/1 or False/True or LOW/HIGH"},
+   {"input", py_input_gpio, METH_VARARGS, "Input from a GPIO channel.  Returns HIGH=1=True or LOW=0=False\nchannel - either board pin number or BCM number depending on which mode is set."},
    {"setmode", py_setmode, METH_VARARGS, "Set up numbering mode to use for channels.\nBOARD - Use Raspberry Pi board numbers\nBCM   - Use Broadcom GPIO 00..nn numbers"},
    {"add_event_detect", (PyCFunction)py_add_event_detect, METH_VARARGS | METH_KEYWORDS, "Enable edge detection events for a particular GPIO channel.\nchannel      - either board pin number or BCM number depending on which mode is set.\nedge         - RISING, FALLING or BOTH\n[callback]   - A callback function for the event (optional)\n[bouncetime] - Switch bounce timeout in ms for callback"},
-   {"remove_event_detect", py_remove_event_detect, METH_VARARGS, "Remove edge detection for a particular GPIO channel\ngpio - gpio channel"},
-   {"event_detected", py_event_detected, METH_VARARGS, "Returns True if an edge has occured on a given GPIO.  You need to enable edge detection using add_event_detect() first.\ngpio - gpio channel"},
-   {"add_event_callback", (PyCFunction)py_add_event_callback, METH_VARARGS | METH_KEYWORDS, "Add a callback for an event already defined using add_event_detect()\ngpio         - gpio channel\ncallback     - a callback function\n[bouncetime] - Switch bounce timeout in ms"},
-   {"wait_for_edge", py_wait_for_edge, METH_VARARGS, "Wait for an edge.\ngpio - gpio channel\nedge - RISING, FALLING or BOTH"},
-   {"gpio_function", py_gpio_function, METH_VARARGS, "Return the current GPIO function (IN, OUT, ALT0)\ngpio - gpio channel"},
+   {"remove_event_detect", py_remove_event_detect, METH_VARARGS, "Remove edge detection for a particular GPIO channel\nchannel - either board pin number or BCM number depending on which mode is set."},
+   {"event_detected", py_event_detected, METH_VARARGS, "Returns True if an edge has occured on a given GPIO.  You need to enable edge detection using add_event_detect() first.\nchannel - either board pin number or BCM number depending on which mode is set."},
+   {"add_event_callback", (PyCFunction)py_add_event_callback, METH_VARARGS | METH_KEYWORDS, "Add a callback for an event already defined using add_event_detect()\nchannel      - either board pin number or BCM number depending on which mode is set.\ncallback     - a callback function\n[bouncetime] - Switch bounce timeout in ms"},
+   {"wait_for_edge", py_wait_for_edge, METH_VARARGS, "Wait for an edge.\nchannel - either board pin number or BCM number depending on which mode is set.\nedge    - RISING, FALLING or BOTH"},
+   {"gpio_function", py_gpio_function, METH_VARARGS, "Return the current GPIO function (IN, OUT, PWM, SERIAL, I2C, SPI)\nchannel - either board pin number or BCM number depending on which mode is set."},
    {"setwarnings", py_setwarnings, METH_VARARGS, "Enable or disable warning messages"},
    {NULL, NULL, 0, NULL}
 };
@@ -583,7 +606,6 @@ PyMODINIT_FUNC initGPIO(void)
 #endif
 {
    PyObject *module = NULL;
-   int revision = -1;
 
 #if PY_MAJOR_VERSION > 2
    if ((module = PyModule_Create(&rpigpiomodule)) == NULL)
