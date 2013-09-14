@@ -104,7 +104,7 @@ static PyObject *py_setup_channel(PyObject *self, PyObject *args, PyObject *kwar
 {
    unsigned int gpio;
    int channel, direction;
-   int pud = PUD_OFF;
+   int pud = PUD_OFF + PY_PUD_CONST_OFFSET;
    int initial = -1;
    static char *kwlist[] = {"channel", "direction", "pull_up_down", "initial", NULL};
    int func;
@@ -133,8 +133,9 @@ static PyObject *py_setup_channel(PyObject *self, PyObject *args, PyObject *kwar
    }
 
    if (direction == OUTPUT)
-      pud = PUD_OFF;
+      pud = PUD_OFF + PY_PUD_CONST_OFFSET;
 
+   pud -= PY_PUD_CONST_OFFSET;
    if (pud != PUD_OFF && pud != PUD_DOWN && pud != PUD_UP)
    {
       PyErr_SetString(PyExc_ValueError, "Invalid value for pull_up_down - should be either PUD_OFF, PUD_UP or PUD_DOWN");
@@ -373,6 +374,7 @@ static PyObject *py_add_event_detect(PyObject *self, PyObject *args, PyObject *k
    }
 
    // is edge valid value
+   edge -= PY_EVENT_CONST_OFFSET;
    if (edge != RISING_EDGE && edge != FALLING_EDGE && edge != BOTH_EDGE)
    {
       PyErr_SetString(PyExc_ValueError, "The edge must be set to RISING, FALLING or BOTH");
@@ -476,6 +478,7 @@ static PyObject *py_wait_for_edge(PyObject *self, PyObject *args)
    }
 
    // is edge a valid value?
+   edge -= PY_EVENT_CONST_OFFSET;
    if (edge != RISING_EDGE && edge != FALLING_EDGE && edge != BOTH_EDGE)
    {
       PyErr_SetString(PyExc_ValueError, "The edge must be set to RISING, FALLING or BOTH");
@@ -497,7 +500,7 @@ static PyObject *py_wait_for_edge(PyObject *self, PyObject *args)
       PyErr_SetString(PyExc_RuntimeError, error);
       return NULL;
    }
-   
+
    Py_RETURN_NONE;
 }
 

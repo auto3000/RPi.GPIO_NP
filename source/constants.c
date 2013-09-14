@@ -49,22 +49,22 @@ void define_constants(PyObject *module)
    bcm = Py_BuildValue("i", BCM);
    PyModule_AddObject(module, "BCM", bcm);
 
-   pud_off = Py_BuildValue("i", PUD_OFF);
+   pud_off = Py_BuildValue("i", PUD_OFF + PY_PUD_CONST_OFFSET);
    PyModule_AddObject(module, "PUD_OFF", pud_off);
 
-   pud_up = Py_BuildValue("i", PUD_UP);
+   pud_up = Py_BuildValue("i", PUD_UP + PY_PUD_CONST_OFFSET);
    PyModule_AddObject(module, "PUD_UP", pud_up);
 
-   pud_down = Py_BuildValue("i", PUD_DOWN);
+   pud_down = Py_BuildValue("i", PUD_DOWN + PY_PUD_CONST_OFFSET);
    PyModule_AddObject(module, "PUD_DOWN", pud_down);
-   
-   rising_edge = Py_BuildValue("i", RISING_EDGE);
+
+   rising_edge = Py_BuildValue("i", RISING_EDGE + PY_EVENT_CONST_OFFSET);
    PyModule_AddObject(module, "RISING", rising_edge);
-   
-   falling_edge = Py_BuildValue("i", FALLING_EDGE);
+
+   falling_edge = Py_BuildValue("i", FALLING_EDGE + PY_EVENT_CONST_OFFSET);
    PyModule_AddObject(module, "FALLING", falling_edge);
 
-   both_edge = Py_BuildValue("i", BOTH_EDGE);
+   both_edge = Py_BuildValue("i", BOTH_EDGE + PY_EVENT_CONST_OFFSET);
    PyModule_AddObject(module, "BOTH", both_edge);
 
    version = Py_BuildValue("s", "0.5.3a");

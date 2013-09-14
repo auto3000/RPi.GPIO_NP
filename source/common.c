@@ -45,7 +45,7 @@ int get_gpio_number(int channel, unsigned int *gpio)
         PyErr_SetString(PyExc_RuntimeError, "No access to /dev/mem.  Try running as root!");
         return 2;
     }
-    
+
     // check setmode() has been run
     if (gpio_mode != BOARD && gpio_mode != BCM)
     {
