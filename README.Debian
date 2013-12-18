@@ -15,7 +15,7 @@ mkdir ~/temp
 cd ~/temp
 
 # get development source
-hg clone https://code.google.com/p/raspberry-gpio-python/
+hg clone http://hg.code.sf.net/p/raspberry-gpio-python/code raspberry-gpio-python
 cd raspberry-gpio-python
 
 # create tarball (in dist directory)
