@@ -515,6 +515,10 @@ static PyObject *py_gpio_function(PyObject *self, PyObject *args)
    if (!PyArg_ParseTuple(args, "i", &channel))
       return NULL;
 
+   // run init_module if module not set up
+   if (!module_setup && (init_module() != SETUP_OK))
+      return NULL;
+
    if (get_gpio_number(channel, &gpio))
        return NULL;
 
@@ -528,7 +532,7 @@ static PyObject *py_gpio_function(PyObject *self, PyObject *args)
                   case 0 :
                   case 1 : if (revision == 1) f = I2C; else f = MODE_UNKNOWN;
                            break;
-                           
+
                   case 2 :
                   case 3 : if (revision == 2) f = I2C; else f = MODE_UNKNOWN;
                            break;
