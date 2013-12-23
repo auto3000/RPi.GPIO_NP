@@ -1,6 +1,6 @@
 from distutils.core import setup, Extension
 
-classifiers = ['Development Status :: 3 - Alpha',
+classifiers = ['Development Status :: 5 - Production/Stable',
                'Operating System :: POSIX :: Linux',
                'License :: OSI Approved :: MIT License',
                'Intended Audience :: Developers',
@@ -12,7 +12,7 @@ classifiers = ['Development Status :: 3 - Alpha',
                'Topic :: System :: Hardware']
 
 setup(name             = 'RPi.GPIO',
-      version          = '0.5.3a',
+      version          = '0.5.4',
       author           = 'Ben Croston',
       author_email     = 'ben@croston.org',
       description      = 'A module to control Raspberry Pi GPIO channels',
