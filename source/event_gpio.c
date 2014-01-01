@@ -404,6 +404,10 @@ int add_edge_detect(unsigned int gpio, unsigned int edge)
     if (gpio_event_added(gpio) != 0)
         return 1;
 
+    // create epfd if not already open
+    if ((epfd == -1) && ((epfd = epoll_create(1)) == -1))
+        return 2;
+
     // export /sys/class/gpio interface
     gpio_export(gpio);
     gpio_set_direction(gpio, 1); // 1=input
@@ -412,23 +416,21 @@ int add_edge_detect(unsigned int gpio, unsigned int edge)
         return 2;
     add_fd_list(gpio,fd);
 
-    // create epfd if not already open
-    if ((epfd == -1) && ((epfd = epoll_create(1)) == -1))
-        return 2;
-
     // add to epoll fd
     ev.events = EPOLLIN | EPOLLET | EPOLLPRI;
     ev.data.fd = fd;
-    if (epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &ev) == -1)
+    if (epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &ev) == -1) {
+        gpio_unexport(gpio);
         return 2;
-
-    // start poll thread if it is not already running
-    if (!thread_running)
-    {
-        if (pthread_create(&threads, NULL, poll_thread, (void *)t) != 0)
-            return 2;
     }
 
+    // start poll thread if it is not already running
+    if (!thread_running) {
+        if (pthread_create(&threads, NULL, poll_thread, (void *)t) != 0) {
+           gpio_unexport(gpio);
+           return 2;
+       }
+    }
     return 0;
 }
 
@@ -469,6 +471,7 @@ int event_detected(unsigned int gpio)
 void event_cleanup(void)
 {
     close(epfd);
+    epfd = -1;
     thread_running = 0;
     exports_cleanup();
 }
@@ -480,12 +483,12 @@ int blocking_wait_for_edge(unsigned int gpio, unsigned int edge)
     struct epoll_event events, ev;
     char buf;
 
-    if ((epfd = epoll_create(1)) == -1)
-        return 1;
-
     // check to see if this gpio has been added already
     if (gpio_event_added(gpio) != 0)
         return 2;
+
+    if ((epfd = epoll_create(1)) == -1)
+        return 1;
 
     // export /sys/class/gpio interface
     gpio_export(gpio);
@@ -497,42 +500,32 @@ int blocking_wait_for_edge(unsigned int gpio, unsigned int edge)
     // add to epoll fd
     ev.events = EPOLLIN | EPOLLET | EPOLLPRI;
     ev.data.fd = fd;
-    if (epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &ev) == -1)
-    {
+    if (epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &ev) == -1) {
         gpio_unexport(gpio);
-        close(fd);
         return 4;
     }
 
     // epoll for event
     for (i = 0; i<2; i++) // first time triggers with current state, so ignore
-       if ((n = epoll_wait(epfd, &events, 1, -1)) == -1)
-       {
+       if ((n = epoll_wait(epfd, &events, 1, -1)) == -1) {
            gpio_unexport(gpio);
-           close(fd);
            return 5;
        }
 
-    if (n > 0)
-    {
+    if (n > 0) {
         lseek(events.data.fd, 0, SEEK_SET);
-        if (read(events.data.fd, &buf, 1) != 1)
-        {
+        if (read(events.data.fd, &buf, 1) != 1) {
             gpio_unexport(gpio);
-            close(fd);
             return 6;
         }
-        if (events.data.fd != fd)
-        {
+        if (events.data.fd != fd) {
             gpio_unexport(gpio);
-            close(fd);
             return 7;
         }
     }
 
     // clean up
     gpio_unexport(gpio);
-    close(fd);
     close(epfd);
     return 0;
 }

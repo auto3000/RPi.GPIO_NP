@@ -536,7 +536,7 @@ static PyObject *py_gpio_function(PyObject *self, PyObject *args)
                   case 2 :
                   case 3 : if (revision == 2) f = I2C; else f = MODE_UNKNOWN;
                            break;
-                           
+
                   case 7 :
                   case 8 :
                   case 9 :
