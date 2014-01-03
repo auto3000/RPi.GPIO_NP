@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2013 Ben Croston
+Copyright (c) 2013-2014 Ben Croston
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -25,7 +25,7 @@ SOFTWARE.
 #define FALLING_EDGE 2
 #define BOTH_EDGE    3
 
-int add_edge_detect(unsigned int gpio, unsigned int edge);
+int add_edge_detect(unsigned int gpio, unsigned int edge, unsigned int bouncetime);
 void remove_edge_detect(unsigned int gpio);
 int add_edge_callback(unsigned int gpio, void (*func)(unsigned int gpio));
 int event_detected(unsigned int gpio);

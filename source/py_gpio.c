@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2012-2013 Ben Croston
+Copyright (c) 2012-2014 Ben Croston
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -35,8 +35,6 @@ struct py_callback
 {
    unsigned int gpio;
    PyObject *py_cb;
-   unsigned long long lastcall;
-   unsigned int bouncetime;
    struct py_callback *next;
 };
 static struct py_callback *py_callbacks = NULL;
@@ -248,34 +246,25 @@ static void run_py_callbacks(unsigned int gpio)
    PyObject *result;
    PyGILState_STATE gstate;
    struct py_callback *cb = py_callbacks;
-   struct timeval tv_timenow;
-   unsigned long long timenow;
 
    while (cb != NULL)
    {
-      if (cb->gpio == gpio)
-      {
-         gettimeofday(&tv_timenow, NULL);
-         timenow = tv_timenow.tv_sec*1E6 + tv_timenow.tv_usec;
-         if (cb->bouncetime == 0 || timenow - cb->lastcall > cb->bouncetime*1000 || cb->lastcall == 0 || cb->lastcall > timenow) {
-            // run callback
-            gstate = PyGILState_Ensure();
-            result = PyObject_CallFunction(cb->py_cb, "i", chan_from_gpio(gpio));
-            if (result == NULL && PyErr_Occurred())
-            {
-               PyErr_Print();
-               PyErr_Clear();
-            }
-            Py_XDECREF(result);
-            PyGILState_Release(gstate);
+      if (cb->gpio == gpio) {
+         // run callback
+         gstate = PyGILState_Ensure();
+         result = PyObject_CallFunction(cb->py_cb, "i", chan_from_gpio(gpio));
+         if (result == NULL && PyErr_Occurred()){
+            PyErr_Print();
+            PyErr_Clear();
          }
-         cb->lastcall = timenow;
+         Py_XDECREF(result);
+         PyGILState_Release(gstate);
       }
       cb = cb->next;
    }
 }
 
-static int add_py_callback(unsigned int gpio, unsigned int bouncetime, PyObject *cb_func)
+static int add_py_callback(unsigned int gpio, PyObject *cb_func)
 {
    struct py_callback *new_py_cb;
    struct py_callback *cb = py_callbacks;
@@ -290,8 +279,6 @@ static int add_py_callback(unsigned int gpio, unsigned int bouncetime, PyObject 
    new_py_cb->py_cb = cb_func;
    Py_XINCREF(cb_func);         // Add a reference to new callback
    new_py_cb->gpio = gpio;
-   new_py_cb->lastcall = 0;
-   new_py_cb->bouncetime = bouncetime;
    new_py_cb->next = NULL;
    if (py_callbacks == NULL) {
       py_callbacks = new_py_cb;
@@ -305,16 +292,15 @@ static int add_py_callback(unsigned int gpio, unsigned int bouncetime, PyObject 
    return 0;
 }
 
-// python function add_event_callback(gpio, callback, bouncetime=0)
+// python function add_event_callback(gpio, callback)
 static PyObject *py_add_event_callback(PyObject *self, PyObject *args, PyObject *kwargs)
 {
    unsigned int gpio;
    int channel;
-   unsigned int bouncetime = 0;
    PyObject *cb_func;
-   char *kwlist[] = {"gpio", "callback", "bouncetime", NULL};
+   char *kwlist[] = {"gpio", "callback", NULL};
 
-   if (!PyArg_ParseTupleAndKeywords(args, kwargs, "iO|i", kwlist, &channel, &cb_func, &bouncetime))
+   if (!PyArg_ParseTupleAndKeywords(args, kwargs, "iO|i", kwlist, &channel, &cb_func))
       return NULL;
 
    if (!PyCallable_Check(cb_func))
@@ -339,7 +325,7 @@ static PyObject *py_add_event_callback(PyObject *self, PyObject *args, PyObject 
       return NULL;
    }
 
-   if (add_py_callback(gpio, bouncetime, cb_func) != 0)
+   if (add_py_callback(gpio, cb_func) != 0)
       return NULL;
 
    Py_RETURN_NONE;
@@ -381,7 +367,7 @@ static PyObject *py_add_event_detect(PyObject *self, PyObject *args, PyObject *k
       return NULL;
    }
 
-   if ((result = add_edge_detect(gpio, edge)) != 0)   // starts a thread
+   if ((result = add_edge_detect(gpio, edge, bouncetime)) != 0)   // starts a thread
    {
       if (result == 1)
       {
@@ -394,7 +380,7 @@ static PyObject *py_add_event_detect(PyObject *self, PyObject *args, PyObject *k
    }
 
    if (cb_func != NULL)
-      if (add_py_callback(gpio, bouncetime, cb_func) != 0)
+      if (add_py_callback(gpio, cb_func) != 0)
          return NULL;
 
    Py_RETURN_NONE;
@@ -492,7 +478,7 @@ static PyObject *py_wait_for_edge(PyObject *self, PyObject *args)
    if (result == 0) {
       Py_INCREF(Py_None);
       return Py_None;
-   } else if (result == 2) {
+   } else if (result == 1) {
       PyErr_SetString(PyExc_RuntimeError, "Edge detection events already enabled for this GPIO channel");
       return NULL;
    } else {
@@ -586,7 +572,7 @@ PyMethodDef rpi_gpio_methods[] = {
    {"add_event_detect", (PyCFunction)py_add_event_detect, METH_VARARGS | METH_KEYWORDS, "Enable edge detection events for a particular GPIO channel.\nchannel      - either board pin number or BCM number depending on which mode is set.\nedge         - RISING, FALLING or BOTH\n[callback]   - A callback function for the event (optional)\n[bouncetime] - Switch bounce timeout in ms for callback"},
    {"remove_event_detect", py_remove_event_detect, METH_VARARGS, "Remove edge detection for a particular GPIO channel\nchannel - either board pin number or BCM number depending on which mode is set."},
    {"event_detected", py_event_detected, METH_VARARGS, "Returns True if an edge has occured on a given GPIO.  You need to enable edge detection using add_event_detect() first.\nchannel - either board pin number or BCM number depending on which mode is set."},
-   {"add_event_callback", (PyCFunction)py_add_event_callback, METH_VARARGS | METH_KEYWORDS, "Add a callback for an event already defined using add_event_detect()\nchannel      - either board pin number or BCM number depending on which mode is set.\ncallback     - a callback function\n[bouncetime] - Switch bounce timeout in ms"},
+   {"add_event_callback", (PyCFunction)py_add_event_callback, METH_VARARGS | METH_KEYWORDS, "Add a callback for an event already defined using add_event_detect()\nchannel      - either board pin number or BCM number depending on which mode is set.\ncallback     - a callback function"},
    {"wait_for_edge", py_wait_for_edge, METH_VARARGS, "Wait for an edge.\nchannel - either board pin number or BCM number depending on which mode is set.\nedge    - RISING, FALLING or BOTH"},
    {"gpio_function", py_gpio_function, METH_VARARGS, "Return the current GPIO function (IN, OUT, PWM, SERIAL, I2C, SPI)\nchannel - either board pin number or BCM number depending on which mode is set."},
    {"setwarnings", py_setwarnings, METH_VARARGS, "Enable or disable warning messages"},

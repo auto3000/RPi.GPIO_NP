@@ -1,6 +1,6 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
-Copyright (c) 2012-2013 Ben Croston
+Copyright (c) 2013-2014 Ben Croston
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -29,11 +29,15 @@ LOOP_IN = 16 connected with 1K resistor to LOOP_OUT
 LOOP_OUT = 22 
 """
 
-import unittest
+import sys
 import warnings
 import time
 from threading import Timer
 import RPi.GPIO as GPIO
+if sys.version[:3] == '2.6':
+    import unittest2 as unittest
+else:
+    import unittest
 
 GND_PIN = 6
 LED_PIN = 12
@@ -217,11 +221,22 @@ class TestSwitchBounce(unittest.TestCase):
     def setUp(self):
         GPIO.setup(SWITCH_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-    def runTest(self):
+    def test_switchbounce(self):
+        self.switchcount = 0
         print "\nSwitch bounce test.  Press switch at least 10 times and count..."
         GPIO.add_event_detect(SWITCH_PIN, GPIO.FALLING, callback=self.cb, bouncetime=200)
         while self.switchcount < 10:
             time.sleep(1)
+        GPIO.remove_event_detect(SWITCH_PIN)
+
+    def test_event_detected(self):
+        self.switchcount = 0
+        print "\nGPIO.event_detected() switch bounce test.  Press switch at least 10 times and count..."
+        GPIO.add_event_detect(SWITCH_PIN, GPIO.FALLING, bouncetime=200)
+        while self.switchcount < 10:
+            if GPIO.event_detected(SWITCH_PIN):
+                self.switchcount += 1
+                print 'Button press',self.switchcount
         GPIO.remove_event_detect(SWITCH_PIN)
 
     def tearDown(self):
