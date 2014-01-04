@@ -374,6 +374,28 @@ class TestEdgeDetection(unittest.TestCase):
     def tearDown(self):
         GPIO.cleanup()
 
+class TestCleanup(unittest.TestCase):
+    def test_cleanall(self):
+        GPIO.setup(LOOP_OUT, GPIO.OUT)
+        GPIO.setup(LED_PIN, GPIO.OUT)
+        self.assertEqual(GPIO.gpio_function(LOOP_OUT), GPIO.OUT)
+        self.assertEqual(GPIO.gpio_function(LED_PIN), GPIO.OUT)
+        GPIO.cleanup()
+        self.assertEqual(GPIO.gpio_function(LOOP_OUT), GPIO.IN)
+        self.assertEqual(GPIO.gpio_function(LED_PIN), GPIO.IN)
+
+    def test_cleanone(self):
+        GPIO.setup(LOOP_OUT, GPIO.OUT)
+        GPIO.setup(LED_PIN, GPIO.OUT)
+        self.assertEqual(GPIO.gpio_function(LOOP_OUT), GPIO.OUT)
+        self.assertEqual(GPIO.gpio_function(LED_PIN), GPIO.OUT)
+        GPIO.cleanup(LOOP_OUT)
+        self.assertEqual(GPIO.gpio_function(LOOP_OUT), GPIO.IN)
+        self.assertEqual(GPIO.gpio_function(LED_PIN), GPIO.OUT)
+        GPIO.cleanup(LED_PIN)
+        self.assertEqual(GPIO.gpio_function(LOOP_OUT), GPIO.IN)
+        self.assertEqual(GPIO.gpio_function(LED_PIN), GPIO.IN)
+
 #def test_suite():
 #    suite = unittest.TestLoader().loadTestsFromModule()
 #    return suite

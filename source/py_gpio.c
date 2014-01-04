@@ -65,23 +65,41 @@ static int init_module(void)
    }
 }
 
-// python function cleanup()
-static PyObject *py_cleanup(PyObject *self, PyObject *args)
+// python function cleanup(channel=None)
+static PyObject *py_cleanup(PyObject *self, PyObject *args, PyObject *kwargs)
 {
    int i;
    int found = 0;
+   int channel = -666;
+   unsigned int gpio;
+   static char *kwlist[] = {"channel", NULL};
 
-   if (module_setup && !setup_error)
-   {
-      // clean up any /sys/class exports
-      event_cleanup();
+   if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|i", kwlist, &channel))
+      return NULL;
 
-      // set everything back to input
-      for (i=0; i<54; i++)
-      {
-         if (gpio_direction[i] != -1)
-         {
-            setup_gpio(i, INPUT, PUD_OFF);
+   if (channel != -666 && get_gpio_number(channel, &gpio))
+      return NULL;
+
+   if (module_setup && !setup_error) {
+      if (channel == -666) {
+         // clean up any /sys/class exports
+         event_cleanup_all();
+
+         // set everything back to input
+         for (i=0; i<54; i++) {
+            if (gpio_direction[i] != -1) {
+               setup_gpio(i, INPUT, PUD_OFF);
+               gpio_direction[i] = -1;
+               found = 1;
+            }
+         }
+      } else {
+         // clean up any /sys/class exports
+         event_cleanup(gpio);
+
+         // set everything back to input
+         if (gpio_direction[gpio] != -1) {
+            setup_gpio(gpio, INPUT, PUD_OFF);
             gpio_direction[i] = -1;
             found = 1;
          }
@@ -89,8 +107,7 @@ static PyObject *py_cleanup(PyObject *self, PyObject *args)
    }
 
    // check if any channels set up - if not warn about misuse of GPIO.cleanup()
-   if (!found && gpio_warnings)
-   {
+   if (!found && gpio_warnings) {
       PyErr_WarnEx(NULL, "No channels have been set up yet - nothing to clean up!  Try cleaning up at the end of your program instead!", 1);
    }
 
@@ -565,7 +582,7 @@ static const char moduledocstring[] = "GPIO functionality of a Raspberry Pi usin
 
 PyMethodDef rpi_gpio_methods[] = {
    {"setup", (PyCFunction)py_setup_channel, METH_VARARGS | METH_KEYWORDS, "Set up the GPIO channel, direction and (optional) pull/up down control\nchannel        - either board pin number or BCM number depending on which mode is set.\ndirection      - INPUT or OUTPUT\n[pull_up_down] - PUD_OFF (default), PUD_UP or PUD_DOWN\n[initial]      - Initial value for an output channel"},
-   {"cleanup", py_cleanup, METH_VARARGS, "Clean up by resetting all GPIO channels that have been used by this program to INPUT with no pullup/pulldown and no event detection"},
+   {"cleanup", (PyCFunction)py_cleanup, METH_VARARGS | METH_KEYWORDS, "Clean up by resetting all GPIO channels that have been used by this program to INPUT with no pullup/pulldown and no event detection\n[channel] - individual channel to clean up.  Default - clean every channel that has been used."},
    {"output", py_output_gpio, METH_VARARGS, "Output to a GPIO channel\nchannel - either board pin number or BCM number depending on which mode is set.\nvalue   - 0/1 or False/True or LOW/HIGH"},
    {"input", py_input_gpio, METH_VARARGS, "Input from a GPIO channel.  Returns HIGH=1=True or LOW=0=False\nchannel - either board pin number or BCM number depending on which mode is set."},
    {"setmode", py_setmode, METH_VARARGS, "Set up numbering mode to use for channels.\nBOARD - Use Raspberry Pi board numbers\nBCM   - Use Broadcom GPIO 00..nn numbers"},
@@ -652,7 +669,7 @@ PyMODINIT_FUNC initGPIO(void)
 #endif
    }
 
-   if (Py_AtExit(event_cleanup) != 0)
+   if (Py_AtExit(event_cleanup_all) != 0)
    {
       setup_error = 1;
       cleanup();

@@ -85,7 +85,7 @@ int gpio_unexport(unsigned int gpio)
     len = snprintf(str_gpio, sizeof(str_gpio), "%d", gpio);
     write(fd, str_gpio, len);
     close(fd);
-    
+
     return 0;
 }
 
@@ -355,12 +355,19 @@ int event_detected(unsigned int gpio)
     }
 }
 
-void event_cleanup(void)
+void event_cleanup(unsigned int gpio)
+// gpio of -666 means clean every channel used
 {
     while (gpio_list != NULL) {
-        remove_edge_detect(gpio_list->gpio);
+        if ((gpio == -666) || (gpio_list->gpio == gpio))
+            remove_edge_detect(gpio_list->gpio);
     }
     thread_running = 0;
+}
+
+void event_cleanup_all(void)
+{
+   event_cleanup(-666);
 }
 
 int gpio_event_added(unsigned int gpio)
