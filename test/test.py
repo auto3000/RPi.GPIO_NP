@@ -26,7 +26,7 @@ GND_PIN = 6
 LED_PIN = 12 (with resistor to 0v)
 SWITCH_PIN = 18 (with 0.1 uF capacitor around switch) to 0v
 LOOP_IN = 16 connected with 1K resistor to LOOP_OUT
-LOOP_OUT = 22 
+LOOP_OUT = 22
 """
 
 import sys
@@ -50,9 +50,17 @@ LOOP_OUT = 22
 class TestAAASetup(unittest.TestCase):
     def runTest(self):
         # Test mode not set (BOARD or BCM) exception
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(RuntimeError) as e:
             GPIO.setup(LED_PIN, GPIO.OUT)
+        self.assertEqual(e.exception.message, 'Please set pin numbering mode using GPIO.setmode(GPIO.BOARD) or GPIO.setmode(GPIO.BCM)')
+
         GPIO.setmode(GPIO.BOARD)
+
+        # Test not set as OUTPUT message
+        with self.assertRaises(RuntimeError) as e:
+            GPIO.output(LED_PIN, GPIO.HIGH)
+        self.assertEqual(e.exception.message,'The GPIO channel has not been set up as an OUTPUT')
+
         GPIO.setup(LED_PIN, GPIO.IN)
 
         # Test setup(..., pull_up_down=GPIO.HIGH) raises exception

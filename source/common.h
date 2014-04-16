@@ -35,6 +35,7 @@ const int (*pin_to_gpio)[27];
 int gpio_direction[54];
 int revision;
 
+int check_gpio_priv(void);
 int get_gpio_number(int channel, unsigned int *gpio);
 int setup_error;
 int module_setup;

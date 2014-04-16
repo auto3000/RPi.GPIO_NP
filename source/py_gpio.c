@@ -39,29 +39,27 @@ struct py_callback
 };
 static struct py_callback *py_callbacks = NULL;
 
-static int init_module(void)
+static int mmap_gpio_mem(void)
 {
-   int i, result;
+   int result;
 
-   module_setup = 0;
-
-   for (i=0; i<54; i++)
-      gpio_direction[i] = -1;
+   if (module_setup)
+      return 0;
 
    result = setup();
    if (result == SETUP_DEVMEM_FAIL)
    {
       PyErr_SetString(PyExc_RuntimeError, "No access to /dev/mem.  Try running as root!");
-      return SETUP_DEVMEM_FAIL;
+      return 1;
    } else if (result == SETUP_MALLOC_FAIL) {
       PyErr_NoMemory();
-      return SETUP_MALLOC_FAIL;
+      return 2;
    } else if (result == SETUP_MMAP_FAIL) {
       PyErr_SetString(PyExc_RuntimeError, "Mmap of GPIO registers failed");
-      return SETUP_MALLOC_FAIL;
+      return 3;
    } else { // result == SETUP_OK
       module_setup = 1;
-      return SETUP_OK;
+      return 0;
    }
 }
 
@@ -134,10 +132,6 @@ static PyObject *py_setup_channel(PyObject *self, PyObject *args, PyObject *kwar
       return NULL;
    }
 
-   // run init_module if module not set up
-   if (!module_setup && (init_module() != SETUP_OK))
-      return NULL;
-
    if (get_gpio_number(channel, &gpio))
       return NULL;
 
@@ -156,6 +150,9 @@ static PyObject *py_setup_channel(PyObject *self, PyObject *args, PyObject *kwar
       PyErr_SetString(PyExc_ValueError, "Invalid value for pull_up_down - should be either PUD_OFF, PUD_UP or PUD_DOWN");
       return NULL;
    }
+
+   if (mmap_gpio_mem())
+      return NULL;
 
    func = gpio_function(gpio);
    if (gpio_warnings &&                             // warnings enabled and
@@ -193,6 +190,9 @@ static PyObject *py_output_gpio(PyObject *self, PyObject *args)
       return NULL;
    }
 
+   if (check_gpio_priv())
+      return NULL;
+
    output_gpio(gpio, value);
    Py_RETURN_NONE;
 }
@@ -216,6 +216,9 @@ static PyObject *py_input_gpio(PyObject *self, PyObject *args)
       PyErr_SetString(PyExc_RuntimeError, "You must setup() the GPIO channel first");
       return NULL;
    }
+
+   if (check_gpio_priv())
+      return NULL;
 
    if (input_gpio(gpio)) {
       value = Py_BuildValue("i", HIGH);
@@ -384,6 +387,9 @@ static PyObject *py_add_event_detect(PyObject *self, PyObject *args, PyObject *k
       return NULL;
    }
 
+   if (check_gpio_priv())
+      return NULL;
+
    if ((result = add_edge_detect(gpio, edge, bouncetime)) != 0)   // starts a thread
    {
       if (result == 1)
@@ -437,6 +443,9 @@ static PyObject *py_remove_event_detect(PyObject *self, PyObject *args)
       }
    }
 
+   if (check_gpio_priv())
+      return NULL;
+
    remove_edge_detect(gpio);
 
    Py_RETURN_NONE;
@@ -488,6 +497,9 @@ static PyObject *py_wait_for_edge(PyObject *self, PyObject *args)
       return NULL;
    }
 
+   if (check_gpio_priv())
+      return NULL;
+
    Py_BEGIN_ALLOW_THREADS // disable GIL
    result = blocking_wait_for_edge(gpio, edge);
    Py_END_ALLOW_THREADS   // enable GIL
@@ -518,12 +530,11 @@ static PyObject *py_gpio_function(PyObject *self, PyObject *args)
    if (!PyArg_ParseTuple(args, "i", &channel))
       return NULL;
 
-   // run init_module if module not set up
-   if (!module_setup && (init_module() != SETUP_OK))
-      return NULL;
-
    if (get_gpio_number(channel, &gpio))
        return NULL;
+
+   if (mmap_gpio_mem())
+      return NULL;
 
    f = gpio_function(gpio);
    switch (f)
@@ -612,6 +623,7 @@ PyMODINIT_FUNC PyInit_GPIO(void)
 PyMODINIT_FUNC initGPIO(void)
 #endif
 {
+   int i;
    PyObject *module = NULL;
 
 #if PY_MAJOR_VERSION > 2
@@ -623,6 +635,9 @@ PyMODINIT_FUNC initGPIO(void)
 #endif
 
    define_constants(module);
+
+   for (i=0; i<54; i++)
+      gpio_direction[i] = -1;
 
    // detect board revision and set up accordingly
    revision = get_rpi_revision();
