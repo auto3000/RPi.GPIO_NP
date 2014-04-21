@@ -52,14 +52,14 @@ class TestAAASetup(unittest.TestCase):
         # Test mode not set (BOARD or BCM) exception
         with self.assertRaises(RuntimeError) as e:
             GPIO.setup(LED_PIN, GPIO.OUT)
-        self.assertEqual(e.exception.message, 'Please set pin numbering mode using GPIO.setmode(GPIO.BOARD) or GPIO.setmode(GPIO.BCM)')
+        self.assertEqual(str(e.exception), 'Please set pin numbering mode using GPIO.setmode(GPIO.BOARD) or GPIO.setmode(GPIO.BCM)')
 
         GPIO.setmode(GPIO.BOARD)
 
         # Test not set as OUTPUT message
         with self.assertRaises(RuntimeError) as e:
             GPIO.output(LED_PIN, GPIO.HIGH)
-        self.assertEqual(e.exception.message,'The GPIO channel has not been set up as an OUTPUT')
+        self.assertEqual(str(e.exception), 'The GPIO channel has not been set up as an OUTPUT')
 
         GPIO.setup(LED_PIN, GPIO.IN)
 

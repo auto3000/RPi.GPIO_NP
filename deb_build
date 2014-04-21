@@ -3,12 +3,12 @@
 # There may be dependencies I've forgotten to mention!
 # Version numbers may change as well!
 
-VERSION=0.5.4
+VERSION=0.5.5
 export DEBFULLNAME="Ben Croston"
 export DEBEMAIL="ben@croston.org"
 
 # install debian package build dependencies
-# sudo apt-get install devscripts build-essential fakeroot dh-make
+# sudo apt-get install devscripts build-essential fakeroot dh-make python-dev pyton 3-dev
 
 # create build area
 mkdir ~/temp
