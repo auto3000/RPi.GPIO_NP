@@ -193,8 +193,18 @@ class TestSetWarnings(unittest.TestCase):
 
 class TestVersions(unittest.TestCase):
     def test_rpi_revision(self):
-        response = raw_input('\nIs this RPi board a revision 1 or 2 ? ')
-        self.assertEqual(int(response[0]), GPIO.RPI_REVISION)
+        if GPIO.RPI_REVISION == 0:
+            revision = 'Compute Module'
+        elif GPIO.RPI_REVISION == 1:
+            revision = 'revision 1'
+        elif GPIO.RPI_REVISION == 2:
+            revision = 'revision 2'
+        elif GPIO.RPI_REVISION == '3':
+            revision = 'Model B+'
+        else:
+            revision = '**undetected**'
+        response = raw_input('\nThis board appears to be a %s - is this correct (y/n) ? '%revision).upper()
+        self.assertEqual(response, 'Y')
 
     def test_gpio_version(self):
         response = raw_input('\nRPi.GPIO version %s - is this correct (y/n) ? '%GPIO.VERSION).upper()
