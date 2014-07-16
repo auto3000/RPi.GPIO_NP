@@ -341,12 +341,12 @@ class TestEdgeDetection(unittest.TestCase):
         GPIO.add_event_detect(LOOP_IN, GPIO.FALLING)
         GPIO.add_event_callback(LOOP_IN, cb)
         time.sleep(0.001)
-        for i in range(5):
+        for i in range(2048):
             GPIO.output(LOOP_OUT, GPIO.LOW)
             time.sleep(0.001)
             GPIO.output(LOOP_OUT, GPIO.HIGH)
             time.sleep(0.001)
-        self.assertEqual(self.callback_count, 5)
+        self.assertEqual(self.callback_count, 2048)
         GPIO.remove_event_detect(LOOP_IN)
 
         # rising test
@@ -354,12 +354,12 @@ class TestEdgeDetection(unittest.TestCase):
         GPIO.output(LOOP_OUT, GPIO.LOW)
         GPIO.add_event_detect(LOOP_IN, GPIO.RISING, callback=cb)
         time.sleep(0.001)
-        for i in range(5):
+        for i in range(2048):
             GPIO.output(LOOP_OUT, GPIO.HIGH)
             time.sleep(0.001)
             GPIO.output(LOOP_OUT, GPIO.LOW)
             time.sleep(0.001)
-        self.assertEqual(self.callback_count, 5)
+        self.assertEqual(self.callback_count, 2048)
         GPIO.remove_event_detect(LOOP_IN)
 
         # both test
@@ -367,12 +367,12 @@ class TestEdgeDetection(unittest.TestCase):
         GPIO.output(LOOP_OUT, GPIO.LOW)
         GPIO.add_event_detect(LOOP_IN, GPIO.BOTH, callback=cb)
         time.sleep(0.001)
-        for i in range(5):
+        for i in range(2048):
             GPIO.output(LOOP_OUT, GPIO.HIGH)
             time.sleep(0.001)
             GPIO.output(LOOP_OUT, GPIO.LOW)
             time.sleep(0.001)
-        self.assertEqual(self.callback_count, 10)
+        self.assertEqual(self.callback_count, 4096)
         GPIO.remove_event_detect(LOOP_IN)
 
     def testEventOnOutput(self):
