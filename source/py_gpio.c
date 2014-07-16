@@ -261,11 +261,13 @@ static unsigned int chan_from_gpio(unsigned int gpio)
 
    if (gpio_mode == BCM)
       return gpio;
-   if (revision == 1 || revision == 2)
+   if (revision == 0)   // not applicable for compute module
+      return -1;
+   else if (revision == 1 || revision == 2)
       chans = 26;
    else
       chans = 40;
-   for (chan=1; chan<=(chans); chan++)
+   for (chan=1; chan<=chans; chan++)
       if (*(*pin_to_gpio+chan) == gpio)
          return chan;
    return -1;
