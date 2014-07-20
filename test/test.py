@@ -199,7 +199,7 @@ class TestVersions(unittest.TestCase):
             revision = 'revision 1'
         elif GPIO.RPI_REVISION == 2:
             revision = 'revision 2'
-        elif GPIO.RPI_REVISION == '3':
+        elif GPIO.RPI_REVISION == 3:
             revision = 'Model B+'
         else:
             revision = '**undetected**'
@@ -350,14 +350,14 @@ class TestEdgeDetection(unittest.TestCase):
         GPIO.output(LOOP_OUT, GPIO.HIGH)
         GPIO.add_event_detect(LOOP_IN, GPIO.FALLING)
         GPIO.add_event_callback(LOOP_IN, cb)
-        time.sleep(0.001)
+        time.sleep(0.01)
         for i in range(2048):
             GPIO.output(LOOP_OUT, GPIO.LOW)
             time.sleep(0.001)
             GPIO.output(LOOP_OUT, GPIO.HIGH)
             time.sleep(0.001)
-        self.assertEqual(self.callback_count, 2048)
         GPIO.remove_event_detect(LOOP_IN)
+        self.assertEqual(self.callback_count, 2048)
 
         # rising test
         self.callback_count = 0
@@ -369,8 +369,8 @@ class TestEdgeDetection(unittest.TestCase):
             time.sleep(0.001)
             GPIO.output(LOOP_OUT, GPIO.LOW)
             time.sleep(0.001)
-        self.assertEqual(self.callback_count, 2048)
         GPIO.remove_event_detect(LOOP_IN)
+        self.assertEqual(self.callback_count, 2048)
 
         # both test
         self.callback_count = 0
@@ -382,8 +382,8 @@ class TestEdgeDetection(unittest.TestCase):
             time.sleep(0.001)
             GPIO.output(LOOP_OUT, GPIO.LOW)
             time.sleep(0.001)
-        self.assertEqual(self.callback_count, 4096)
         GPIO.remove_event_detect(LOOP_IN)
+        self.assertEqual(self.callback_count, 4096)
 
     def testEventOnOutput(self):
         with self.assertRaises(RuntimeError):

@@ -8,7 +8,7 @@ export DEBFULLNAME="Ben Croston"
 export DEBEMAIL="ben@croston.org"
 
 # install debian package build dependencies
-# sudo apt-get install devscripts build-essential fakeroot dh-make python-dev pyton 3-dev
+# sudo apt-get install devscripts build-essential fakeroot dh-make python-dev python3-dev
 
 # create build area
 mkdir ~/temp
