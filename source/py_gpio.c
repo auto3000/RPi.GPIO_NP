@@ -98,7 +98,7 @@ static PyObject *py_cleanup(PyObject *self, PyObject *args, PyObject *kwargs)
          // set everything back to input
          if (gpio_direction[gpio] != -1) {
             setup_gpio(gpio, INPUT, PUD_OFF);
-            gpio_direction[i] = -1;
+            gpio_direction[gpio] = -1;
             found = 1;
          }
       }
