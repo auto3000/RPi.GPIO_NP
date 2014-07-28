@@ -265,6 +265,71 @@ class TestEdgeDetection(unittest.TestCase):
         GPIO.setup(LOOP_IN, GPIO.IN)
         GPIO.setup(LOOP_OUT, GPIO.OUT)
 
+    def testWaitForEdgeWithCallback(self):
+        def cb():
+            raise Exception("Callback should not be called")
+        def makehigh():
+            GPIO.output(LOOP_OUT, GPIO.HIGH)
+
+        GPIO.output(LOOP_OUT, GPIO.LOW)
+        t = Timer(0.1, makehigh)
+
+        GPIO.add_event_detect(LOOP_IN, GPIO.RISING)
+        t.start()
+        GPIO.wait_for_edge(LOOP_IN, GPIO.RISING)
+
+        GPIO.output(LOOP_OUT, GPIO.LOW)
+        GPIO.add_event_callback(LOOP_IN, callback=cb)
+        with self.assertRaises(RuntimeError):
+            GPIO.wait_for_edge(LOOP_IN, GPIO.RISING)
+        GPIO.remove_event_detect(LOOP_IN)
+
+    def testWaitForEventSwitchbounce(self):
+        def bounce():
+            GPIO.output(LOOP_OUT, GPIO.HIGH)
+            time.sleep(0.01)
+            GPIO.output(LOOP_OUT, GPIO.LOW)
+            time.sleep(0.01)
+            GPIO.output(LOOP_OUT, GPIO.HIGH)
+            time.sleep(0.01)
+            GPIO.output(LOOP_OUT, GPIO.LOW)
+            time.sleep(0.2)
+            GPIO.output(LOOP_OUT, GPIO.HIGH)
+            time.sleep(0.01)
+            GPIO.output(LOOP_OUT, GPIO.LOW)
+            time.sleep(0.01)
+            GPIO.output(LOOP_OUT, GPIO.HIGH)
+            time.sleep(0.01)
+            GPIO.output(LOOP_OUT, GPIO.LOW)
+
+        GPIO.output(LOOP_OUT, GPIO.LOW)
+        t1 = Timer(0.1, bounce)
+        t1.start()
+
+        starttime = time.time()
+        GPIO.wait_for_edge(LOOP_IN, GPIO.RISING, bouncetime=100)
+        GPIO.wait_for_edge(LOOP_IN, GPIO.RISING, bouncetime=100)
+        finishtime = time.time()
+        self.assertGreater(finishtime-starttime, 0.2)
+
+    def testInvalidBouncetime(self):
+        with self.assertRaises(ValueError):
+            GPIO.add_event_detect(LOOP_IN, GPIO.RISING, bouncetime=-1)
+        with self.assertRaises(ValueError):
+            GPIO.wait_for_edge(LOOP_IN, GPIO.RISING, bouncetime=-1)
+        GPIO.add_event_detect(LOOP_IN, GPIO.RISING, bouncetime=123)
+        with self.assertRaises(RuntimeError):
+            GPIO.wait_for_edge(LOOP_IN, GPIO.RISING, bouncetime=321)
+        GPIO.remove_event_detect(LOOP_IN)
+
+    def testAlreadyAdded(self):
+        GPIO.add_event_detect(LOOP_IN, GPIO.RISING)
+        with self.assertRaises(RuntimeError):
+            GPIO.add_event_detect(LOOP_IN, GPIO.RISING)
+        with self.assertRaises(RuntimeError):
+            GPIO.wait_for_edge(LOOP_IN, GPIO.FALLING)
+        GPIO.remove_event_detect(LOOP_IN)
+
     def testHighLowEvent(self):
         with self.assertRaises(ValueError):
             GPIO.add_event_detect(LOOP_IN, GPIO.LOW)
