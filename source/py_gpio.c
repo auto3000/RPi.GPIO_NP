@@ -534,7 +534,7 @@ static PyObject *py_wait_for_edge(PyObject *self, PyObject *args, PyObject *kwar
       Py_INCREF(Py_None);
       return Py_None;
    } else if (result == 1) {
-      PyErr_SetString(PyExc_RuntimeError, "Conflicting edge detection events already exists for this GPIO channel");
+      PyErr_SetString(PyExc_RuntimeError, "Conflicting edge detection events already exist for this GPIO channel");
       return NULL;
    } else {
       PyErr_SetString(PyExc_RuntimeError, "Error waiting for edge");

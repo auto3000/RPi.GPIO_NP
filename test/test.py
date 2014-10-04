@@ -326,8 +326,6 @@ class TestEdgeDetection(unittest.TestCase):
         GPIO.add_event_detect(LOOP_IN, GPIO.RISING)
         with self.assertRaises(RuntimeError):
             GPIO.add_event_detect(LOOP_IN, GPIO.RISING)
-        with self.assertRaises(RuntimeError):
-            GPIO.wait_for_edge(LOOP_IN, GPIO.FALLING)
         GPIO.remove_event_detect(LOOP_IN)
 
     def testHighLowEvent(self):
@@ -453,6 +451,19 @@ class TestEdgeDetection(unittest.TestCase):
     def testEventOnOutput(self):
         with self.assertRaises(RuntimeError):
             GPIO.add_event_detect(LOOP_OUT, GPIO.FALLING)
+
+    def testAlternateWaitForEdge(self):
+        def makehigh():
+            GPIO.output(LOOP_OUT, GPIO.HIGH)
+        def makelow():
+            GPIO.output(LOOP_OUT, GPIO.LOW)
+        GPIO.output(LOOP_OUT, GPIO.LOW)
+        t = Timer(0.1, makehigh)
+        t2 = Timer(0.15, makelow)
+        t.start()
+        t2.start()
+        GPIO.wait_for_edge(LOOP_IN, GPIO.RISING)
+        GPIO.wait_for_edge(LOOP_IN, GPIO.FALLING)
 
     def tearDown(self):
         GPIO.cleanup()
