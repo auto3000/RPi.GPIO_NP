@@ -502,6 +502,7 @@ int blocking_wait_for_edge(unsigned int gpio, unsigned int edge, int bouncetime)
         gpio_set_edge(gpio, edge);
         g->edge = edge;
         g->bouncetime = bouncetime;
+        g->initial_wait = 1;
     }
 
     // create epfd_blocking if not already open
