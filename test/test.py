@@ -100,7 +100,6 @@ class TestInputOutput(unittest.TestCase):
         self.assertEqual(GPIO.input(LED_PIN), GPIO.HIGH)
         GPIO.output(LED_PIN, GPIO.LOW)
         self.assertEqual(GPIO.input(LED_PIN), GPIO.LOW)
-        GPIO.cleanup()
 
     def test_loopback(self):
         """Test output loops back to another input"""
@@ -109,13 +108,56 @@ class TestInputOutput(unittest.TestCase):
         self.assertEqual(GPIO.input(LOOP_IN), GPIO.LOW)
         GPIO.output(LOOP_OUT, GPIO.HIGH)
         self.assertEqual(GPIO.input(LOOP_IN), GPIO.HIGH)
-        GPIO.cleanup()
 
     def test_output_on_input(self):
         """Test output() can not be done on input"""
         GPIO.setup(SWITCH_PIN, GPIO.IN)
         with self.assertRaises(RuntimeError):
             GPIO.output(SWITCH_PIN, GPIO.LOW)
+
+    def test_output_list(self):
+        """Test output() using lists"""
+        GPIO.setup(LOOP_OUT, GPIO.OUT)
+        GPIO.setup(LED_PIN, GPIO.OUT)
+
+        GPIO.output( [LOOP_OUT, LED_PIN], GPIO.HIGH)
+        self.assertEqual(GPIO.input(LOOP_OUT), GPIO.HIGH)
+        self.assertEqual(GPIO.input(LED_PIN), GPIO.HIGH)
+
+        GPIO.output( (LOOP_OUT, LED_PIN), GPIO.LOW)
+        self.assertEqual(GPIO.input(LOOP_OUT), GPIO.LOW)
+        self.assertEqual(GPIO.input(LED_PIN), GPIO.LOW)
+
+        GPIO.output( [LOOP_OUT, LED_PIN], [GPIO.HIGH, GPIO.LOW] )
+        self.assertEqual(GPIO.input(LOOP_OUT), GPIO.HIGH)
+        self.assertEqual(GPIO.input(LED_PIN), GPIO.LOW)
+
+        GPIO.output( (LOOP_OUT, LED_PIN), (GPIO.LOW, GPIO.HIGH) )
+        self.assertEqual(GPIO.input(LOOP_OUT), GPIO.LOW)
+        self.assertEqual(GPIO.input(LED_PIN), GPIO.HIGH)
+
+        with self.assertRaises(RuntimeError):
+            GPIO.output( [LOOP_OUT, LED_PIN], [0,0,0] )
+
+        with self.assertRaises(RuntimeError):
+            GPIO.output( [LOOP_OUT, LED_PIN], (0,) )
+
+        with self.assertRaises(RuntimeError):
+            GPIO.output(LOOP_OUT, (0,0))
+
+        with self.assertRaises(ValueError):
+            GPIO.output( [LOOP_OUT, 'x'], (0,0) )
+
+        with self.assertRaises(ValueError):
+            GPIO.output( [LOOP_OUT, LED_PIN], (0,'x') )
+
+        with self.assertRaises(ValueError):
+            GPIO.output( [LOOP_OUT, GND_PIN], (0,0) )
+
+        with self.assertRaises(RuntimeError):
+            GPIO.output( [LOOP_OUT, LOOP_IN], (0,0) )
+
+    def tearDown(self):
         GPIO.cleanup()
 
 class TestSoftPWM(unittest.TestCase):

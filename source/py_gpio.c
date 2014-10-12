@@ -172,28 +172,155 @@ static PyObject *py_setup_channel(PyObject *self, PyObject *args, PyObject *kwar
    Py_RETURN_NONE;
 }
 
-// python function output(channel, value)
+// python function output(channel(s), value(s))
 static PyObject *py_output_gpio(PyObject *self, PyObject *args)
 {
    unsigned int gpio;
-   int channel, value;
+   int channel = -1;
+   int value = -1;
+   int i;
+   PyObject *chanlist = NULL;
+   PyObject *valuelist = NULL;
+   PyObject *chantuple = NULL;
+   PyObject *valuetuple = NULL;
+   PyObject *tempobj = NULL;
+   int chancount = -1;
+   int valuecount = -1;
 
-   if (!PyArg_ParseTuple(args, "ii", &channel, &value))
-      return NULL;
+   int output(void) {
+      if (get_gpio_number(channel, &gpio))
+          return 0;
 
-   if (get_gpio_number(channel, &gpio))
-       return NULL;
+      if (gpio_direction[gpio] != OUTPUT)
+      {
+         PyErr_SetString(PyExc_RuntimeError, "The GPIO channel has not been set up as an OUTPUT");
+         return 0;
+      }
 
-   if (gpio_direction[gpio] != OUTPUT)
-   {
-      PyErr_SetString(PyExc_RuntimeError, "The GPIO channel has not been set up as an OUTPUT");
-      return NULL;
+      if (check_gpio_priv())
+         return 0;
+
+      output_gpio(gpio, value);
+      return 1;
    }
 
-   if (check_gpio_priv())
-      return NULL;
+   if (!PyArg_ParseTuple(args, "OO", &chanlist, &valuelist))
+       return NULL;
 
-   output_gpio(gpio, value);
+#if PY_MAJOR_VERSION >= 3
+   if (PyLong_Check(chanlist)) {
+      channel = (int)PyLong_AsLong(chanlist);
+#else
+   if (PyInt_Check(chanlist)) {
+      channel = (int)PyInt_AsLong(chanlist);
+#endif
+      if (PyErr_Occurred())
+         return NULL;
+      chanlist = NULL;
+   } else if (PyList_Check(chanlist)) {
+      // do nothing
+   } else if (PyTuple_Check(chanlist)) {
+      chantuple = chanlist;
+      chanlist = NULL;
+   } else {
+       PyErr_SetString(PyExc_ValueError, "Channel must be an integer or list/tuple of integers");
+       return NULL;
+   }
+
+#if PY_MAJOR_VERSION >= 3
+   if (PyLong_Check(valuelist)) {
+       value = (int)PyLong_AsLong(valuelist);
+#else
+   if (PyInt_Check(valuelist)) {
+       value = (int)PyInt_AsLong(valuelist);
+#endif
+      if (PyErr_Occurred())
+         return NULL;
+       valuelist = NULL;
+   } else if (PyList_Check(valuelist)) {
+      // do nothing
+   } else if (PyTuple_Check(valuelist)) {
+      valuetuple = valuelist;
+      valuelist = NULL;
+   } else {
+       PyErr_SetString(PyExc_ValueError, "Value must be an integer/boolean or a list/tuple of integers/booleans");
+       return NULL;
+   }
+
+   if (chanlist)
+       chancount = PyList_Size(chanlist);
+   if (chantuple)
+       chancount = PyTuple_Size(chantuple);
+   if (valuelist)
+       valuecount = PyList_Size(valuelist);
+   if (valuetuple)
+       valuecount = PyTuple_Size(valuetuple);
+   if ((chancount != -1 && chancount != valuecount && valuecount != -1) || (chancount == -1 && valuecount != -1)) {
+       PyErr_SetString(PyExc_RuntimeError, "Number of channels != number of values");
+       return NULL;
+   }
+
+   if (chancount == -1) {
+      if (!output())
+         return NULL;
+      Py_RETURN_NONE;
+   }
+
+   for (i=0; i<chancount; i++) {
+      // get channel number
+      if (chanlist) {
+         if ((tempobj = PyList_GetItem(chanlist, i)) == NULL) {
+            return NULL;
+         }
+      } else { // assume chantuple
+         if ((tempobj = PyTuple_GetItem(chantuple, i)) == NULL) {
+            return NULL;
+         }
+      }
+
+#if PY_MAJOR_VERSION >= 3
+      if (PyLong_Check(tempobj)) {
+         channel = (int)PyLong_AsLong(tempobj);
+#else
+      if (PyInt_Check(tempobj)) {
+         channel = (int)PyInt_AsLong(tempobj);
+#endif
+         if (PyErr_Occurred())
+             return NULL;
+      } else {
+          PyErr_SetString(PyExc_ValueError, "Channel must be an integer");
+          return NULL;
+      }
+
+      // get value
+      if (valuecount > 0) {
+          if (valuelist) {
+             if ((tempobj = PyList_GetItem(valuelist, i)) == NULL) {
+                return NULL;
+             }
+          } else { // assume valuetuple
+             if ((tempobj = PyTuple_GetItem(valuetuple, i)) == NULL) {
+                return NULL;
+             }
+          }
+#if PY_MAJOR_VERSION >= 3
+          if (PyLong_Check(tempobj)) {
+             value = (int)PyLong_AsLong(tempobj);
+#else
+          if (PyInt_Check(tempobj)) {
+             value = (int)PyInt_AsLong(tempobj);
+#endif
+             if (PyErr_Occurred())
+                 return NULL;
+          } else {
+              PyErr_SetString(PyExc_ValueError, "Value must be an integer or boolean");
+              return NULL;
+          }
+      }
+      if (!output())
+         return NULL;
+   }
+
    Py_RETURN_NONE;
 }
 
@@ -639,7 +766,7 @@ static const char moduledocstring[] = "GPIO functionality of a Raspberry Pi usin
 PyMethodDef rpi_gpio_methods[] = {
    {"setup", (PyCFunction)py_setup_channel, METH_VARARGS | METH_KEYWORDS, "Set up the GPIO channel, direction and (optional) pull/up down control\nchannel        - either board pin number or BCM number depending on which mode is set.\ndirection      - INPUT or OUTPUT\n[pull_up_down] - PUD_OFF (default), PUD_UP or PUD_DOWN\n[initial]      - Initial value for an output channel"},
    {"cleanup", (PyCFunction)py_cleanup, METH_VARARGS | METH_KEYWORDS, "Clean up by resetting all GPIO channels that have been used by this program to INPUT with no pullup/pulldown and no event detection\n[channel] - individual channel to clean up.  Default - clean every channel that has been used."},
-   {"output", py_output_gpio, METH_VARARGS, "Output to a GPIO channel\nchannel - either board pin number or BCM number depending on which mode is set.\nvalue   - 0/1 or False/True or LOW/HIGH"},
+   {"output", py_output_gpio, METH_VARARGS, "Output to a GPIO channel or list of channels\nchannel - either board pin number or BCM number depending on which mode is set.\nvalue   - 0/1 or False/True or LOW/HIGH"},
    {"input", py_input_gpio, METH_VARARGS, "Input from a GPIO channel.  Returns HIGH=1=True or LOW=0=False\nchannel - either board pin number or BCM number depending on which mode is set."},
    {"setmode", py_setmode, METH_VARARGS, "Set up numbering mode to use for channels.\nBOARD - Use Raspberry Pi board numbers\nBCM   - Use Broadcom GPIO 00..nn numbers"},
    {"add_event_detect", (PyCFunction)py_add_event_detect, METH_VARARGS | METH_KEYWORDS, "Enable edge detection events for a particular GPIO channel.\nchannel      - either board pin number or BCM number depending on which mode is set.\nedge         - RISING, FALLING or BOTH\n[callback]   - A callback function for the event (optional)\n[bouncetime] - Switch bounce timeout in ms for callback"},
