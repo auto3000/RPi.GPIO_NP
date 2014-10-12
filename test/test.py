@@ -67,6 +67,11 @@ class TestAAASetup(unittest.TestCase):
         with self.assertRaises(ValueError):
             GPIO.setup(LED_PIN, GPIO.IN, pull_up_down=GPIO.HIGH)
 
+        # Test not valid on a raspi exception
+        with self.assertRaises(ValueError) as e:
+            GPIO.setup(GND_PIN, GPIO.OUT)
+        self.assertEqual(str(e.exception), 'The channel sent is invalid on a Raspberry Pi')
+
         # Test 'already in use' warning
         GPIO.cleanup()
         with open('/sys/class/gpio/export','wb') as f:
@@ -91,6 +96,29 @@ class TestAAASetup(unittest.TestCase):
         GPIO.setup(LED_PIN, GPIO.OUT, initial=GPIO.LOW)
         self.assertEqual(GPIO.input(LED_PIN), GPIO.LOW)
         GPIO.cleanup()
+
+        # test setup of a list of channels
+        GPIO.setup( [LED_PIN, LOOP_OUT], GPIO.OUT)
+        self.assertEqual(GPIO.gpio_function(LED_PIN), GPIO.OUT)
+        self.assertEqual(GPIO.gpio_function(LOOP_OUT), GPIO.OUT)
+        GPIO.cleanup()
+        with self.assertRaises(ValueError) as e:
+            GPIO.setup( [LED_PIN, GND_PIN], GPIO.OUT)
+        self.assertEqual(GPIO.gpio_function(LED_PIN), GPIO.OUT)
+        self.assertEqual(str(e.exception), 'The channel sent is invalid on a Raspberry Pi')
+        GPIO.cleanup()
+
+        # test setup of a tuple of channels
+        GPIO.setup( (LED_PIN, LOOP_OUT), GPIO.OUT)
+        self.assertEqual(GPIO.gpio_function(LED_PIN), GPIO.OUT)
+        self.assertEqual(GPIO.gpio_function(LOOP_OUT), GPIO.OUT)
+        GPIO.cleanup()
+
+        # test non integer channel
+        with self.assertRaises(ValueError):
+            GPIO.setup('d', GPIO.OUT)
+        with self.assertRaises(ValueError):
+            GPIO.setup(('d',LED_PIN), GPIO.OUT)
 
 class TestInputOutput(unittest.TestCase):
     def test_outputread(self):
