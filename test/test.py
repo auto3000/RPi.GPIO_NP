@@ -270,7 +270,7 @@ class TestVersions(unittest.TestCase):
         elif GPIO.RPI_REVISION == 2:
             revision = 'revision 2'
         elif GPIO.RPI_REVISION == 3:
-            revision = 'Model B+'
+            revision = 'Model A+/B+'
         else:
             revision = '**undetected**'
         response = raw_input('\nThis board appears to be a %s - is this correct (y/n) ? '%revision).upper()

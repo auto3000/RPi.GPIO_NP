@@ -891,7 +891,7 @@ PyMODINIT_FUNC initGPIO(void)
       pin_to_gpio = &pin_to_gpio_rev1;
    } else if (revision == 2) {
       pin_to_gpio = &pin_to_gpio_rev2;
-   } else { // assume model B+
+   } else { // assume model B+ or A+
       pin_to_gpio = &pin_to_gpio_rev3;
    }
 
