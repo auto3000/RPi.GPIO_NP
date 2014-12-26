@@ -139,6 +139,13 @@ static PyObject *py_setup_channel(PyObject *self, PyObject *args, PyObject *kwar
          PyErr_WarnEx(NULL, "This channel is already in use, continuing anyway.  Use GPIO.setwarnings(False) to disable warnings.", 1);
       }
 
+      // warn about pull/up down on i2c channels
+      if (revision == 0) { // compute module - do nothing
+      } else if ((revision == 1 && (gpio == 0 || gpio == 1)) ||
+                 (gpio == 2 || gpio == 3)) {
+         PyErr_WarnEx(NULL, "A physical pull up resistor is fitted on this channel!", 1);
+      }
+
       if (direction == OUTPUT && (initial == LOW || initial == HIGH)) {
          output_gpio(gpio, initial);
       }

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 """
 Copyright (c) 2013-2014 Ben Croston
 
@@ -113,6 +113,18 @@ class TestAAASetup(unittest.TestCase):
         self.assertEqual(GPIO.gpio_function(LED_PIN), GPIO.OUT)
         self.assertEqual(GPIO.gpio_function(LOOP_OUT), GPIO.OUT)
         GPIO.cleanup()
+
+        # test warning when using pull up/down on i2c channels
+        if GPIO.RPI_REVISION == 0: # compute module
+            pass    # test not vailid
+        else:  # revision 1, 2 or A+/B+
+            with warnings.catch_warnings(record=True) as w:
+                GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+                self.assertEqual(w[0].category, RuntimeWarning)
+            with warnings.catch_warnings(record=True) as w:
+                GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+                self.assertEqual(w[0].category, RuntimeWarning)
+            GPIO.cleanup()
 
         # test non integer channel
         with self.assertRaises(ValueError):
