@@ -5,6 +5,7 @@ Change Log
 -----
 - Issue 87 - warn about pull up/down on i2c pins
 - Issue 86/75 - wait_for_edge() bugfix
+- Issue 84 - recognise RPi properly when using a custom kernel
 
 0.5.8
 -----
