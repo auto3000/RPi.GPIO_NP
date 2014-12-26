@@ -347,6 +347,25 @@ class TestEdgeDetection(unittest.TestCase):
         GPIO.setup(LOOP_IN, GPIO.IN)
         GPIO.setup(LOOP_OUT, GPIO.OUT)
 
+    def testWaitForEdgeInLoop(self):
+        def makelow():
+            GPIO.output(LOOP_OUT, GPIO.LOW)
+
+        count = 0
+        timestart = time.time()
+        GPIO.output(LOOP_OUT, GPIO.HIGH)
+        while True:
+            t = Timer(0.1, makelow)
+            t.start()
+            GPIO.wait_for_edge(LOOP_IN, GPIO.FALLING)
+            GPIO.output(LOOP_OUT, GPIO.HIGH)
+            count += 1
+            if time.time() - timestart > 5 or count > 150:
+                break
+        self.assertEqual(count, 49)
+        time.sleep(0.12)
+        time.sleep(0.12)
+
     def testWaitForEdgeWithCallback(self):
         def cb():
             raise Exception("Callback should not be called")
@@ -362,8 +381,9 @@ class TestEdgeDetection(unittest.TestCase):
 
         GPIO.output(LOOP_OUT, GPIO.LOW)
         GPIO.add_event_callback(LOOP_IN, callback=cb)
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(RuntimeError):   # conflicting edge exception
             GPIO.wait_for_edge(LOOP_IN, GPIO.RISING)
+
         GPIO.remove_event_detect(LOOP_IN)
 
     def testWaitForEventSwitchbounce(self):

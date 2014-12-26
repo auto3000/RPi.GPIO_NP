@@ -4,6 +4,7 @@ Change Log
 ?.?.?
 -----
 - Issue 87 - warn about pull up/down on i2c pins
+- Issue 86/75 - wait_for_edge() bugfix
 
 0.5.8
 -----
