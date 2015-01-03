@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 """
-Copyright (c) 2013-2014 Ben Croston
+Copyright (c) 2013-2015 Ben Croston
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -45,6 +45,12 @@ LED_PIN_BCM = 18
 SWITCH_PIN = 18
 LOOP_IN = 16
 LOOP_OUT = 22
+
+non_interactive = False
+for i,val in enumerate(sys.argv):
+    if val == '--non_interactive':
+        non_interactive = True
+        sys.argv.pop(i)
 
 # Test starts with 'AAA' so that it is run first
 class TestAAASetup(unittest.TestCase):
@@ -201,6 +207,7 @@ class TestInputOutput(unittest.TestCase):
         GPIO.cleanup()
 
 class TestSoftPWM(unittest.TestCase):
+    @unittest.skipIf(non_interactive, 'Non interactive mode')
     def runTest(self):
         GPIO.setup(LED_PIN, GPIO.OUT)
         pwm = GPIO.PWM(LED_PIN, 50)
@@ -321,6 +328,7 @@ class TestSwitchBounce(unittest.TestCase):
     def setUp(self):
         GPIO.setup(SWITCH_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
+    @unittest.skipIf(non_interactive, 'Non interactive mode')
     def test_switchbounce(self):
         self.switchcount = 0
         print "\nSwitch bounce test.  Press switch at least 10 times and count..."
@@ -329,6 +337,7 @@ class TestSwitchBounce(unittest.TestCase):
             time.sleep(1)
         GPIO.remove_event_detect(SWITCH_PIN)
 
+    @unittest.skipIf(non_interactive, 'Non interactive mode')
     def test_event_detected(self):
         self.switchcount = 0
         print "\nGPIO.event_detected() switch bounce test.  Press switch at least 10 times and count..."
@@ -592,9 +601,39 @@ class TestCleanup(unittest.TestCase):
         self.assertEqual(GPIO.gpio_function(LOOP_OUT), GPIO.IN)
         self.assertEqual(GPIO.gpio_function(LED_PIN), GPIO.IN)
 
-#def test_suite():
-#    suite = unittest.TestLoader().loadTestsFromModule()
-#    return suite
+    def test_cleantuple(self):
+        GPIO.setup(LOOP_OUT, GPIO.OUT)
+        GPIO.setup(LED_PIN, GPIO.OUT)
+        self.assertEqual(GPIO.gpio_function(LOOP_OUT), GPIO.OUT)
+        self.assertEqual(GPIO.gpio_function(LED_PIN), GPIO.OUT)
+        GPIO.cleanup((LOOP_OUT,))
+        self.assertEqual(GPIO.gpio_function(LOOP_OUT), GPIO.IN)
+        self.assertEqual(GPIO.gpio_function(LED_PIN), GPIO.OUT)
+        GPIO.cleanup((LED_PIN,))
+        self.assertEqual(GPIO.gpio_function(LOOP_OUT), GPIO.IN)
+        self.assertEqual(GPIO.gpio_function(LED_PIN), GPIO.IN)
+        GPIO.setup(LOOP_OUT, GPIO.OUT)
+        GPIO.setup(LED_PIN, GPIO.OUT)
+        GPIO.cleanup((LOOP_OUT,LED_PIN))
+        self.assertEqual(GPIO.gpio_function(LOOP_OUT), GPIO.IN)
+        self.assertEqual(GPIO.gpio_function(LED_PIN), GPIO.IN)
+
+    def test_cleanlist(self):
+        GPIO.setup(LOOP_OUT, GPIO.OUT)
+        GPIO.setup(LED_PIN, GPIO.OUT)
+        self.assertEqual(GPIO.gpio_function(LOOP_OUT), GPIO.OUT)
+        self.assertEqual(GPIO.gpio_function(LED_PIN), GPIO.OUT)
+        GPIO.cleanup([LOOP_OUT])
+        self.assertEqual(GPIO.gpio_function(LOOP_OUT), GPIO.IN)
+        self.assertEqual(GPIO.gpio_function(LED_PIN), GPIO.OUT)
+        GPIO.cleanup([LED_PIN])
+        self.assertEqual(GPIO.gpio_function(LOOP_OUT), GPIO.IN)
+        self.assertEqual(GPIO.gpio_function(LED_PIN), GPIO.IN)
+        GPIO.setup(LOOP_OUT, GPIO.OUT)
+        GPIO.setup(LED_PIN, GPIO.OUT)
+        GPIO.cleanup([LOOP_OUT,LED_PIN])
+        self.assertEqual(GPIO.gpio_function(LOOP_OUT), GPIO.IN)
+        self.assertEqual(GPIO.gpio_function(LED_PIN), GPIO.IN)
 
 if __name__ == '__main__':
     unittest.main()
