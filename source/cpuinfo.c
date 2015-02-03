@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2012-2013 Ben Croston
+Copyright (c) 2012-2015 Ben Croston
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -37,7 +37,10 @@ char *get_cpuinfo_revision(char *revision)
    while(!feof(fp)) {
       fgets(buffer, sizeof(buffer) , fp);
       sscanf(buffer, "Hardware	: %s", hardware);
-      if (strcmp(hardware, "BCM2708") == 0 || strcmp(hardware, "BCM2835") == 0)
+      if (strcmp(hardware, "BCM2708") == 0 ||
+          strcmp(hardware, "BCM2709") == 0 ||
+          strcmp(hardware, "BCM2835") == 0 ||
+          strcmp(hardware, "BCM2836") == 0)
          rpi_found = 1;
       sscanf(buffer, "Revision	: %s", revision);
    }
@@ -79,6 +82,6 @@ int get_rpi_revision(void)
       return 2;  // revision 2
    else if (strcmp(revision, "0011") == 0)
       return 0;  // compute module
-   else   // assume B+ (0010) or A+ (0012)
+   else   // assume B+ (0010) or A+ (0012) or RPi2
       return 3;
 }
