@@ -59,21 +59,21 @@ int setup(void)
 {
     int mem_fd;
     uint8_t *gpio_mem;
-    uint32_t gpio_base, peri_base;
+    uint32_t peri_base = BCM2708_PERI_BASE_DEFAULT;
+    uint32_t gpio_base; 
     unsigned char buf[4];
     FILE *fp;
 
     // get peri base from device tree
-    if (fp = fopen("/proc/device-tree/soc/ranges", "rb")) {
+    if ((fp = fopen("/proc/device-tree/soc/ranges", "rb")) != NULL) {
         fseek(fp, 4, SEEK_SET);
         if (fread(buf, 1, sizeof buf, fp) == sizeof buf) {
             peri_base = buf[0] << 24 | buf[1] << 16 | buf[2] << 8 | buf[3] << 0;
-            gpio_base = peri_base + GPIO_BASE_OFFSET;
         }
         fclose(fp);
-    } else {
-        gpio_base = BCM2708_PERI_BASE_DEFAULT + GPIO_BASE_OFFSET;
     }
+
+    gpio_base = peri_base + GPIO_BASE_OFFSET;
 
     // mmap the GPIO memory registers
     if ((mem_fd = open("/dev/mem", O_RDWR|O_SYNC) ) < 0)

@@ -1,7 +1,7 @@
 Change Log
 ==========
 
-0.5.10a
+0.5.10a1
 ------
 - Issue 95 - support RPi 2 boards
 - Fails unit tests on wait_for_edge and soft PWM

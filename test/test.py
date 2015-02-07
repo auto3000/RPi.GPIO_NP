@@ -407,9 +407,6 @@ class TestEdgeDetection(unittest.TestCase):
             GPIO.output(LOOP_OUT, GPIO.LOW)
             time.sleep(0.01)
             GPIO.output(LOOP_OUT, GPIO.HIGH)
-            time.sleep(0.01)
-            GPIO.output(LOOP_OUT, GPIO.LOW)
-            
 
         GPIO.output(LOOP_OUT, GPIO.LOW)
         t1 = Timer(0.1, bounce)
@@ -485,11 +482,15 @@ class TestEdgeDetection(unittest.TestCase):
 
     def testWaitForRising(self):
         def makehigh():
+            print("high")
             GPIO.output(LOOP_OUT, GPIO.HIGH)
         GPIO.output(LOOP_OUT, GPIO.LOW)
-        t = Timer(0.1, makehigh)
+#btc        t = Timer(0.1, makehigh)
+        t = Timer(1.0, makehigh)
         t.start()
+        print("wait")
         GPIO.wait_for_edge(LOOP_IN, GPIO.RISING)
+        print("finish")
 
     def testWaitForFalling(self):
         def makelow():
@@ -517,7 +518,6 @@ class TestEdgeDetection(unittest.TestCase):
         def cb(channel):
             self.callback_count += 1
 
-        return # btc fixme
         # falling test
         self.callback_count = 0
         GPIO.output(LOOP_OUT, GPIO.HIGH)

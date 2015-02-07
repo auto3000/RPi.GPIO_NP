@@ -85,3 +85,16 @@ int get_rpi_revision(void)
    else   // assume B+ (0010) or A+ (0012) or RPi2
       return 3;
 }
+
+/* 
+
+32 bits
+NEW                   23: will be 1 for the new scheme, 0 for the old scheme
+MEMSIZE             20: 0=256M 1=512M 2=1G
+MANUFACTURER  16: 0=SONY 1=EGOMAN
+PROCESSOR         12: 0=2835 1=2836
+TYPE                   04: 0=MODELA 1=MODELB 2=MODELA+ 3=MODELB+ 4=Pi2 MODEL B 5=ALPHA 6=CM
+REV                     00: 0=REV0 1=REV1 2=REV2
+
+pi2 = 1<<23 | 2<<20 | 1<<12 | 4<<4 = 0xa01040
+*/
