@@ -387,6 +387,7 @@ class TestEdgeDetection(unittest.TestCase):
         GPIO.remove_event_detect(LOOP_IN)
 
     def testWaitForEventSwitchbounce(self):
+        self.finished = False
         def bounce():
             GPIO.output(LOOP_OUT, GPIO.HIGH)
             time.sleep(0.01)
@@ -401,6 +402,9 @@ class TestEdgeDetection(unittest.TestCase):
             GPIO.output(LOOP_OUT, GPIO.LOW)
             time.sleep(0.01)
             GPIO.output(LOOP_OUT, GPIO.HIGH)
+            time.sleep(0.01)
+            GPIO.output(LOOP_OUT, GPIO.LOW)
+            self.finished = True
 
         GPIO.output(LOOP_OUT, GPIO.LOW)
         t1 = Timer(0.1, bounce)
@@ -411,6 +415,8 @@ class TestEdgeDetection(unittest.TestCase):
         GPIO.wait_for_edge(LOOP_IN, GPIO.RISING, bouncetime=100)
         finishtime = time.time()
         self.assertGreater(finishtime-starttime, 0.2)
+        while not self.finished:
+            time.sleep(0.1)
 
     def testInvalidBouncetime(self):
         with self.assertRaises(ValueError):
@@ -476,15 +482,11 @@ class TestEdgeDetection(unittest.TestCase):
 
     def testWaitForRising(self):
         def makehigh():
-            print("high")
             GPIO.output(LOOP_OUT, GPIO.HIGH)
         GPIO.output(LOOP_OUT, GPIO.LOW)
-#btc        t = Timer(0.1, makehigh)
-        t = Timer(1.0, makehigh)
+        t = Timer(0.1, makehigh)
         t.start()
-        print("wait")
         GPIO.wait_for_edge(LOOP_IN, GPIO.RISING)
-        print("finish")
 
     def testWaitForFalling(self):
         def makelow():
