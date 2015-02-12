@@ -4,8 +4,14 @@ Change Log
 0.5.10a2
 --------
 - Issue 95 - support RPi 2 boards
+<<<<<<< local
+- Introduce RPI_INFO
+- Deprecate RPI_REVISION
+- Fails unit tests on wait_for_edge
+=======
 - Fails unit tests on wait_for_edge and soft PWM
 - Issue97 - fixed docstring for setup()
+>>>>>>> other
 
 0.5.9
 -----
