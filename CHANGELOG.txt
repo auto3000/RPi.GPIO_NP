@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+0.5.11a1
+--------
+- Fix - some pine missing on 2B when using BOARD mode
+
 0.5.10
 ------
 - Issue 95 - support RPi 2 boards
