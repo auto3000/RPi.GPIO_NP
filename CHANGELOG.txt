@@ -1,12 +1,12 @@
 Change Log
 ==========
 
-0.5.11a2
---------
+0.5.11
+------
 - Fix - pins > 26 missing when using BOARD mode
 - Add getmode()
 - Raise exception when a mix of modes is used
-- GPIO.cleanaup() unsets the current mode
+- GPIO.cleanaup() unsets the current pin mode
 
 0.5.10
 ------
