@@ -1,8 +1,9 @@
 Change Log
 ==========
 
-0.5.12a1
+0.5.12a2
 --------
+- Fix warnings with pull up/down on pins 3/5
 - Correct base address on Pi 2 when devicetree is disabled
 
 0.5.11

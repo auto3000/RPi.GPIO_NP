@@ -210,10 +210,13 @@ static PyObject *py_setup_channel(PyObject *self, PyObject *args, PyObject *kwar
       }
 
       // warn about pull/up down on i2c channels
-      if (rpiinfo.p1_revision == 0) { // compute module - do nothing
-      } else if ((rpiinfo.p1_revision == 1 && (gpio == 0 || gpio == 1)) ||
-                 (gpio == 2 || gpio == 3)) {
-         PyErr_WarnEx(NULL, "A physical pull up resistor is fitted on this channel!", 1);
+      if (gpio_warnings) {
+         if (rpiinfo.p1_revision == 0) { // compute module - do nothing
+         } else if ((rpiinfo.p1_revision == 1 && (gpio == 0 || gpio == 1)) ||
+                    (gpio == 2 || gpio == 3)) {
+            if (pud == PUD_UP || pud == PUD_DOWN)
+               PyErr_WarnEx(NULL, "A physical pull up resistor is fitted on this channel!", 1);
+         }
       }
 
       if (direction == OUTPUT && (initial == LOW || initial == HIGH)) {
