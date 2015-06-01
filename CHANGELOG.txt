@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+0.5.12a1
+--------
+- Correct base address on Pi 2 when devicetree is disabled
+
 0.5.11
 ------
 - Fix - pins > 26 missing when using BOARD mode

@@ -58,6 +58,12 @@ static int mmap_gpio_mem(void)
    } else if (result == SETUP_MMAP_FAIL) {
       PyErr_SetString(PyExc_RuntimeError, "Mmap of GPIO registers failed");
       return 3;
+   } else if (result == SETUP_CPUINFO_FAIL) {
+      PyErr_SetString(PyExc_RuntimeError, "Unable to open /proc/cpuinfo");
+      return 4;
+   } else if (result == SETUP_NOT_RPI_FAIL) {
+      PyErr_SetString(PyExc_RuntimeError, "Not running on a RPi!");
+      return 5;
    } else { // result == SETUP_OK
       module_setup = 1;
       return 0;
