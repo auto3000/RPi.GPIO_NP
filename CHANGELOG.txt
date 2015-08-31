@@ -1,12 +1,13 @@
 Change Log
 ==========
 
-0.5.12a4
+0.5.12a5
 --------
 - Fix warnings with pull up/down on pins 3/5
 - Correct base address on Pi 2 when devicetree is disabled
 - caddr_t error on compile (Issue 109)
 - Error on invalid parameters to setup() (issue 93)
+- Add timeout parameter to wait_for_edge() (issue 91)
 
 0.5.11
 ------

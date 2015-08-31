@@ -615,6 +615,27 @@ class TestEdgeDetection(unittest.TestCase):
         GPIO.wait_for_edge(LOOP_IN, GPIO.RISING)
         GPIO.wait_for_edge(LOOP_IN, GPIO.FALLING)
 
+    def testWaitForEdgeTimeout(self):
+        def makehigh():
+            GPIO.output(LOOP_OUT, GPIO.HIGH)
+        def makelow():
+            GPIO.output(LOOP_OUT, GPIO.LOW)
+
+        with self.assertRaises(TypeError):
+            GPIO.wait_for_edge(LOOP_IN, GPIO.RISING, timeout="beer")
+
+        with self.assertRaises(ValueError):
+            GPIO.wait_for_edge(LOOP_IN, GPIO.RISING, timeout=-1234)
+
+        makelow()
+        chan = GPIO.wait_for_edge(LOOP_IN, GPIO.RISING, timeout=200)
+        self.assertEqual(chan, None)
+
+        t = Timer(0.1, makehigh)
+        t.start()
+        chan = GPIO.wait_for_edge(LOOP_IN, GPIO.RISING, timeout=200)
+        self.assertEquals(chan, LOOP_IN)
+
     def tearDown(self):
         GPIO.cleanup()
 
