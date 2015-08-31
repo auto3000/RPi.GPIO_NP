@@ -1,8 +1,9 @@
 Change Log
 ==========
 
-0.5.12a5
---------
+0.6.0a1
+-------
+- Now uses /dev/gpiomem if available to avoid being run as root
 - Fix warnings with pull up/down on pins 3/5
 - Correct base address on Pi 2 when devicetree is disabled
 - caddr_t error on compile (Issue 109)
