@@ -266,6 +266,16 @@ static PyObject *py_setup_channel(PyObject *self, PyObject *args, PyObject *kwar
       return 0;
    }
 
+   if (direction == OUTPUT && pud != PUD_OFF + PY_PUD_CONST_OFFSET) {
+      PyErr_SetString(PyExc_ValueError, "pull_up_down parameter is not valid for outputs");
+      return 0;
+   }
+
+   if (direction == INPUT && initial != -1) {
+      PyErr_SetString(PyExc_ValueError, "initial parameter is not valid for inputs");
+      return 0;
+   }
+
    if (direction == OUTPUT)
       pud = PUD_OFF + PY_PUD_CONST_OFFSET;
 

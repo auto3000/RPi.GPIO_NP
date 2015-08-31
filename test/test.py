@@ -161,6 +161,16 @@ class TestAAASetup(unittest.TestCase):
         with self.assertRaises(ValueError):
             GPIO.setup(('d',LED_PIN), GPIO.OUT)
 
+        # test setting pull_up_down on an output
+        GPIO.setmode(GPIO.BOARD)
+        with self.assertRaises(ValueError):
+            GPIO.setup(LOOP_OUT, GPIO.OUT, pull_up_down=GPIO.PUD_DOWN)
+
+        # test setting initial on an input
+        GPIO.setmode(GPIO.BOARD)
+        with self.assertRaises(ValueError):
+            GPIO.setup(LOOP_IN, GPIO.IN, initial=GPIO.LOW)
+
 class TestInputOutput(unittest.TestCase):
     def setUp(self):
         GPIO.setmode(GPIO.BOARD)
