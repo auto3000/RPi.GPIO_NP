@@ -1,3 +1,9 @@
+rpi.gpio (0.5.12a3-1) unstable; urgency=low
+
+  * To match new Python package 0.5.12a3
+
+ -- Ben Croston <ben@croston.org>  Mon, 31 Aug 2015 11:36:52 +0001
+
 rpi.gpio (0.5.12a2-1) unstable; urgency=low
 
   * To match new Python package 0.5.12a2
