@@ -97,6 +97,7 @@ class TestAAASetup(unittest.TestCase):
         GPIO.setmode(GPIO.BOARD)
         with open('/sys/class/gpio/export','wb') as f:
             f.write(str(LED_PIN_BCM).encode())
+        time.sleep(0.05)  # wait for udev to set permissions
         with open('/sys/class/gpio/gpio%s/direction'%LED_PIN_BCM,'wb') as f:
             f.write(b'out')
         with open('/sys/class/gpio/gpio%s/value'%LED_PIN_BCM,'wb') as f:
@@ -275,6 +276,7 @@ class TestSetWarnings(unittest.TestCase):
         GPIO.setwarnings(False)
         with open('/sys/class/gpio/export','wb') as f:
             f.write(str(LED_PIN_BCM).encode())
+        time.sleep(0.05)  # wait for udev to set permissions
         with open('/sys/class/gpio/gpio%s/direction'%LED_PIN_BCM,'wb') as f:
             f.write(b'out')
         with open('/sys/class/gpio/gpio%s/value'%LED_PIN_BCM,'wb') as f:
@@ -290,6 +292,7 @@ class TestSetWarnings(unittest.TestCase):
         GPIO.setwarnings(True)
         with open('/sys/class/gpio/export','wb') as f:
             f.write(str(LED_PIN_BCM).encode())
+        time.sleep(0.05)  # wait for udev to set permissions
         with open('/sys/class/gpio/gpio%s/direction'%LED_PIN_BCM,'wb') as f:
             f.write(b'out')
         with open('/sys/class/gpio/gpio%s/value'%LED_PIN_BCM,'wb') as f:
@@ -634,7 +637,7 @@ class TestEdgeDetection(unittest.TestCase):
         t = Timer(0.1, makehigh)
         t.start()
         chan = GPIO.wait_for_edge(LOOP_IN, GPIO.RISING, timeout=200)
-        self.assertEquals(chan, LOOP_IN)
+        self.assertEqual(chan, LOOP_IN)
 
     def tearDown(self):
         GPIO.cleanup()

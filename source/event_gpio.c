@@ -75,6 +75,12 @@ int gpio_export(unsigned int gpio)
     write(fd, str_gpio, len);
     close(fd);
 
+    // arbitary delay to allow udev time to set user permissions
+    struct timespec delay;
+    delay.tv_sec = 0;
+    delay.tv_nsec = 50000000L; // 50ms
+    nanosleep(&delay, NULL);
+
     return 0;
 }
 
