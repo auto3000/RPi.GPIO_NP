@@ -1,7 +1,7 @@
 Change Log
 ==========
 
-0.6.0a2
+0.6.0a3
 -------
 - Now uses /dev/gpiomem if available to avoid being run as root
 - Fix warnings with pull up/down on pins 3/5

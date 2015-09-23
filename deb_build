@@ -3,7 +3,7 @@
 # There may be dependencies I've forgotten to mention!
 # Version numbers may change as well!
 
-VERSION=0.6.0a2
+VERSION=0.6.0a3
 export DEBFULLNAME="Ben Croston"
 export DEBEMAIL="ben@croston.org"
 
@@ -24,9 +24,10 @@ python setup.py sdist
 cd ~/temp
 cp raspberry-gpio-python/dist/*.gz .
 tar xvfz RPi.GPIO-$VERSION.tar.gz
+mv RPi.GPIO-$VERSION.tar.gz RPi.GPIO-$VERSION-1.tar.gz
 mv RPi.GPIO-$VERSION rpi.gpio-$VERSION
 cd rpi.gpio-$VERSION
-dh_make -s -f ../RPi.GPIO-$VERSION.tar.gz
+dh_make -s -f ../RPi.GPIO-$VERSION-1.tar.gz
 
 # delete debian directory and replace it with my copy (from hg)
 rm -rf debian
