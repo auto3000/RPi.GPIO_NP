@@ -1,8 +1,9 @@
 Change Log
 ==========
 
-0.6.0a4
+0.6.0a5
 -------
+- Issue 118 - add_event_detect sometimes gives runtime error with unpriv user 
 - Issue 120 - setmode() remembers invalid mode
 - Now uses /dev/gpiomem if available to avoid being run as root
 - Fix warnings with pull up/down on pins 3/5
