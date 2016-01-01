@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 """
-Copyright (c) 2013-2015 Ben Croston
+Copyright (c) 2013-2016 Ben Croston
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -67,8 +67,12 @@ class TestAAASetup(unittest.TestCase):
         GPIO.setup(LED_PIN_BCM, GPIO.IN)
         GPIO.cleanup()
 
+        # Test setting an invalid mode
+        with self.assertRaises(ValueError):
+            GPIO.setmode(666)
+
         # Test getmode()
-        self.assertEqual(GPIO.getmode(), GPIO.UNKNOWN)
+        self.assertEqual(GPIO.getmode(), None)
         GPIO.setmode(GPIO.BCM)
         self.assertEqual(GPIO.getmode(), GPIO.BCM)
         GPIO.setup(LED_PIN_BCM, GPIO.IN)
