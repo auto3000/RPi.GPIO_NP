@@ -108,65 +108,78 @@ int get_rpi_info(rpi_info *info)
          info->type = "Model B";
          info->p1_revision = 1;
          info->ram = "256M";
+         info->processor = "BCM2835";
       } else if (strcmp(rev, "0004") == 0) {
          info->type = "Model B";
          info->p1_revision = 2;
          info->ram = "256M";
          info->manufacturer = "Sony";
+         info->processor = "BCM2835";
       } else if (strcmp(rev, "0005") == 0) {
          info->type = "Model B";
          info->p1_revision = 2;
          info->ram = "256M";
          info->manufacturer = "Qisda";
+         info->processor = "BCM2835";
       } else if (strcmp(rev, "0006") == 0) {
          info->type = "Model B";
          info->p1_revision = 2;
          info->ram = "256M";
          info->manufacturer = "Egoman";
+         info->processor = "BCM2835";
       } else if (strcmp(rev, "0007") == 0) {
          info->type = "Model A";
          info->p1_revision = 2;
          info->ram = "256M";
          info->manufacturer = "Egoman";
+         info->processor = "BCM2835";
       } else if (strcmp(rev, "0008") == 0) {
          info->type = "Model A";
          info->p1_revision = 2;
          info->ram = "256M";
          info->manufacturer = "Sony";
+         info->processor = "BCM2835";
       } else if (strcmp(rev, "0009") == 0) {
          info->type = "Model A";
          info->p1_revision = 2;
          info->ram = "256M";
          info->manufacturer = "Qisda";
+         info->processor = "BCM2835";
       } else if (strcmp(rev, "000d") == 0) {
          info->type = "Model B";
          info->p1_revision = 2;
          info->ram = "512M";
          info->manufacturer = "Egoman";
+         info->processor = "BCM2835";
       } else if (strcmp(rev, "000e") == 0) {
          info->type = "Model B";
          info->p1_revision = 2;
          info->ram = "512M";
          info->manufacturer = "Sony";
+         info->processor = "BCM2835";
       } else if (strcmp(rev, "000f") == 0) {
          info->type = "Model B";
          info->p1_revision = 2;
          info->ram = "512M";
          info->manufacturer = "Qisda";
+         info->processor = "BCM2835";
       } else if ((strcmp(rev, "0011") == 0) ||
                  (strcmp(rev, "0014") == 0)) {
          info->type = "Compute Module";
          info->p1_revision = 0;
          info->ram = "512M";
+         info->processor = "BCM2835";
       } else if (strcmp(rev, "0012") == 0) {
          info->type = "Model A+";
          info->p1_revision = 3;
          info->ram = "256M";
+         info->processor = "BCM2835";
       } else if ((strcmp(rev, "0010") == 0) ||
                  (strcmp(rev, "0013") == 0)) {
          info->type = "Model B+";
          info->p1_revision = 3;
          info->ram = "512M";
+         info->processor = "BCM2835";
       } else {  // don't know - assume revision 3 p1 connector
          info->p1_revision = 3;
       }
