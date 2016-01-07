@@ -4,7 +4,7 @@
 # Version numbers may change as well!
 
 VERSION=0.6.1
-DISTRO=jessie
+DISTRO=wheezy
 export DEBFULLNAME="Ben Croston"
 export DEBEMAIL="ben@croston.org"
 
@@ -37,3 +37,6 @@ cp -a ~/temp/raspberry-gpio-python/debian_$DISTRO ./debian
 # build .deb files
 debuild -us -uc
 debuild clean
+
+mv ~/temp/python-rpi.gpio_$VERSION-1_armhf.deb ~/temp/python-rpi.gpio_$VERSION-1~${DISTRO}_armhf.deb
+mv ~/temp/python3-rpi.gpio_$VERSION-1_armhf.deb ~/temp/python3-rpi.gpio_$VERSION-1~${DISTRO}_armhf.deb
