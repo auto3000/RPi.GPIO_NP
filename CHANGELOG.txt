@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+0.6.2a0
+-------
+- Rewrote Debian packaging mechanism
+
 0.6.1
 -----
 - Update RPI_INFO to detect more board types
