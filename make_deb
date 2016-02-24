@@ -3,7 +3,7 @@
 # There may be dependencies I've forgotten to mention!
 # Version numbers may change as well!
 
-VERSION=0.6.2a0
+VERSION=0.6.2a1
 DISTRO=`lsb_release -sc`
 #DEBFULLNAME="Ben Croston"
 #DEBEMAIL="ben@croston.org"

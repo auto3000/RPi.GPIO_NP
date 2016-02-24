@@ -1,9 +1,10 @@
 Change Log
 ==========
 
-0.6.2a0
+0.6.2a1
 -------
 - Rewrote Debian packaging mechanism
+- Changed module layout - moved C components to RPi._GPIO
 
 0.6.1
 -----
