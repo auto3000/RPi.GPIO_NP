@@ -1,3 +1,9 @@
+rpi.gpio (0.6.3a0~jessie-1) unstable; urgency=low
+
+  * To match new Python package 0.6.3a0
+
+ -- Ben Croston <ben@croston.org>  Sat, 15 Oct 2016 19:10:13 +0100
+
 rpi.gpio (0.6.2~jessie-1) unstable; urgency=low
 
   * To match new Python package 0.6.2
