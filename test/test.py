@@ -29,6 +29,8 @@ LOOP_IN = 16 connected with 1K resistor to LOOP_OUT
 LOOP_OUT = 22
 """
 
+import os
+import subprocess
 import sys
 import warnings
 import time
@@ -395,6 +397,54 @@ class TestEdgeDetection(unittest.TestCase):
         GPIO.setup(LOOP_IN, GPIO.IN)
         GPIO.setup(LOOP_OUT, GPIO.OUT)
 
+    #  Running a shell command with os.sytem has caused problems
+    #  with sending SIGCHLD to the polling thread, causing it
+    #  to exit.  Test for that.
+    def testShellCmdWithWaitForEdge(self):
+        self.finished = False
+        def shellcmd():
+            for i in range(50):
+                os.system('sleep 0')
+                subprocess.call('sleep 0', shell=True)
+            self.finished = True
+        def makehigh():
+            GPIO.output(LOOP_OUT, GPIO.HIGH)
+
+        GPIO.output(LOOP_OUT, GPIO.LOW)
+        t1 = Timer(0.1, shellcmd)
+        t2 = Timer(0.5, makehigh)
+        t1.start()
+        t2.start()
+        starttime = time.time()
+        channel = GPIO.wait_for_edge(LOOP_IN, GPIO.RISING, timeout=1000)
+        endtime = time.time()
+        self.assertGreater(endtime - starttime, 0.5)
+        self.assertLess(endtime - starttime, 0.6)
+        self.assertEqual(channel, LOOP_IN)
+
+        # make sure tasks in this test have finished before continuing
+        while not self.finished:
+            time.sleep(0.1)
+
+    def testShellCmdWithEventCallback(self):
+        self.run_cb = False
+
+        def cb(channel):
+            self.run_cb = True
+
+        GPIO.output(LOOP_OUT, GPIO.LOW)
+        GPIO.add_event_detect(LOOP_IN, GPIO.RISING, callback=cb)
+        time.sleep(0.01)
+
+        for i in range(50):
+            os.system('sleep 0')
+            subprocess.call('sleep 0', shell=True)
+
+        GPIO.output(LOOP_OUT, GPIO.HIGH)
+        time.sleep(0.01)
+        GPIO.remove_event_detect(LOOP_IN)
+        self.assertEqual(self.run_cb, True)
+
     def testWaitForEdgeInLoop(self):
         def makelow():
             GPIO.output(LOOP_OUT, GPIO.LOW)
@@ -405,7 +455,11 @@ class TestEdgeDetection(unittest.TestCase):
         while True:
             t = Timer(0.1, makelow)
             t.start()
-            GPIO.wait_for_edge(LOOP_IN, GPIO.FALLING)
+            starttime = time.time()
+            channel = GPIO.wait_for_edge(LOOP_IN, GPIO.FALLING, timeout=200)
+            endtime = time.time()
+            self.assertLess(endtime-starttime, 0.12)
+            self.assertEqual(channel, LOOP_IN)
             GPIO.output(LOOP_OUT, GPIO.HIGH)
             count += 1
             if time.time() - timestart > 5 or count > 150:

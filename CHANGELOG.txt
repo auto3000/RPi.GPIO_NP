@@ -1,9 +1,10 @@
 Change Log
 ==========
 
-0.6.3a0
+0.6.3a1
 -------
 - Fix code so it builds under PyPy (Gasper Zejn)
+- os.system breaks event detection - Matt Kimball (issue 127)
 
 0.6.2
 -----

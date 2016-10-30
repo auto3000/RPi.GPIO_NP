@@ -24,6 +24,7 @@ SOFTWARE.
 #include <sys/epoll.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
@@ -331,10 +332,7 @@ void *poll_thread(void *threadarg)
 
     thread_running = 1;
     while (thread_running) {
-        if ((n = epoll_wait(epfd_thread, &events, 1, -1)) == -1) {
-            thread_running = 0;
-            pthread_exit(NULL);
-        }
+        n = epoll_wait(epfd_thread, &events, 1, -1);
         if (n > 0) {
             lseek(events.data.fd, 0, SEEK_SET);
             if (read(events.data.fd, &buf, 1) != 1) {
@@ -353,6 +351,15 @@ void *poll_thread(void *threadarg)
                     run_callbacks(g->gpio);
                 }
             }
+        } else if (n == -1) {
+            /*  If a signal is received while we are waiting,
+                epoll_wait will return with an EINTR error.
+                Just try again in that case.  */
+            if (errno == EINTR) {
+                continue;
+            }
+            thread_running = 0;
+            pthread_exit(NULL);
         }
     }
     thread_running = 0;
@@ -534,7 +541,14 @@ int blocking_wait_for_edge(unsigned int gpio, unsigned int edge, int bouncetime,
 
     // wait for edge
     while (!finished) {
-        if ((n = epoll_wait(epfd_blocking, &events, 1, timeout)) == -1) {
+        n = epoll_wait(epfd_blocking, &events, 1, timeout);
+        if (n == -1) {
+            /*  If a signal is received while we are waiting,
+                epoll_wait will return with an EINTR error.
+                Just try again in that case.  */
+            if (errno == EINTR) {
+                continue;
+            }
             epoll_ctl(epfd_blocking, EPOLL_CTL_DEL, g->value_fd, &ev);
             return -2;
         }
