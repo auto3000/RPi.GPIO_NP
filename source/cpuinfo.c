@@ -40,7 +40,12 @@ int get_rpi_info(rpi_info *info)
    while(!feof(fp)) {
       fgets(buffer, sizeof(buffer), fp);
       sscanf(buffer, "Hardware	: %s", hardware);
-      if (strcmp(hardware, "BCM2708") == 0 ||
+      if (strcmp(hardware, "sun8i") == 0 ||
+          strcmp(hardware, "sun50iw2") == 0 ||
+          strcmp(hardware, "Allwinnersun50iw2Family") == 0 ||
+          strcmp(hardware, "Allwinnersun8iFamily") == 0 ||
+          strcmp(hardware, "NANOPI2") || 
+          strcmp(hardware, "BCM2708") == 0 ||
           strcmp(hardware, "BCM2709") == 0 ||
           strcmp(hardware, "BCM2835") == 0 ||
           strcmp(hardware, "BCM2836") == 0 ||
