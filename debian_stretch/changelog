@@ -1,0 +1,6 @@
+rpi.gpio (0.6.3~stretch-1) unstable; urgency=low
+
+  * To match Python RPi.GPIO package 0.6.3
+
+ -- Ben Croston <ben@croston.org>  Mon, 26 Jun 2017 23:12:56 +0100
+
