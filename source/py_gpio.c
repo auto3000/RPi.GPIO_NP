@@ -1020,8 +1020,9 @@ PyMODINIT_FUNC init_GPIO(void)
                               "MANUFACTURER",rpiinfo.manufacturer,
                               "PROCESSOR",rpiinfo.processor,
                               "RAM",rpiinfo.ram);
-   PyModule_AddObject(module, "RPI_INFO", board_info); 
+   PyModule_AddObject(module, "RPI_INFO", board_info);
 
+#if 0
    if (rpiinfo.p1_revision == 1) {
       pin_to_gpio = &pin_to_gpio_rev1;
    } else if (rpiinfo.p1_revision == 2) {
@@ -1029,7 +1030,9 @@ PyMODINIT_FUNC init_GPIO(void)
    } else { // assume model B+ or A+ or 2B
       pin_to_gpio = &pin_to_gpio_rev3;
    }
-
+#else
+   pin_to_gpio = &pin_to_gpio_nanopi;
+#endif
    rpi_revision = Py_BuildValue("i", rpiinfo.p1_revision);     // deprecated
    PyModule_AddObject(module, "RPI_REVISION", rpi_revision);   // deprecated
 

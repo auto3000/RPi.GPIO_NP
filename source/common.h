@@ -34,6 +34,7 @@ int gpio_mode;
 const int pin_to_gpio_rev1[41];
 const int pin_to_gpio_rev2[41];
 const int pin_to_gpio_rev3[41];
+const int pin_to_gpio_nanopi[64];
 const int (*pin_to_gpio)[41];
 int gpio_direction[54];
 rpi_info rpiinfo;
