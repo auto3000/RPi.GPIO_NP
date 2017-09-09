@@ -26,7 +26,11 @@ SOFTWARE.
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <string.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include "c_gpio.h"
+#include "event_gpio.h"
+
 
 
 #define SUNXI_GPIO_BASE  (0x01C20000)
@@ -76,7 +80,6 @@ static uint32_t readl(uint32_t addr) {
     uint32_t mmap_base = addr & MAP_MASK;
     uint32_t mmap_seek = (mmap_base + SUNXI_GPIO_BASE_OFFSET);
     return gpio_map[mmap_seek >> 2];
-
 }
 
 /** Write a word to GPIO base + 'addr'. */
@@ -343,16 +346,41 @@ int input_gpio(int gpio)
    value = *(gpio_map+offset) & mask;
    return value;
 #else
+    struct gpios* g = get_gpio(gpio);
     int regval = 0;
-    int bank = gpio >> 5;
-    int offset = bank * 36 + 0x10; // +0x10 -> data reg
-    int index = gpio & 0x1F ;
-    int mask = 1 << index;
-    if (nanopi_PIN_MASK[bank][index] != -1) {
-        regval = readl(offset) & mask;
-    } else {
-        printf("input_gpio: pin number error %d\n", gpio);
+
+    if(g == NULL)
+    {
+      /* g is NULL, consequently gpio has not been registered for interrupts,
+         we can do a direct memory access */
+      int bank = gpio >> 5;
+      int offset = bank * 36 + 0x10; // +0x10 -> data reg
+      int index = gpio & 0x1F ;
+      int mask = 1 << index;
+      if (nanopi_PIN_MASK[bank][index] != -1) {
+          regval = readl(offset);
+          regval = regval & mask;
+      } else {
+          printf("input_gpio: pin number error %d\n", gpio);
+      }
     }
+    else
+    {
+      /* On interrupt muxing, we need first to remux to value mode. However,
+         we prefer to leave this work to the kernel instead. Consequently,
+         we read the value through the /sys/class/gpio/../value. */
+      char buffer = 0;
+
+      /* Return to start position */
+      lseek(g->value_fd, 0, SEEK_SET);
+
+      if (read(g->value_fd, &buffer, sizeof(buffer)) != sizeof(buffer)) {
+         perror("input_gpio read");
+      }
+
+      regval = buffer == '0' ? 0 : 1;
+    }
+
     return regval;
 #endif
 }

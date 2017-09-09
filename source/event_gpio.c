@@ -33,19 +33,7 @@ SOFTWARE.
 
 const char *stredge[4] = {"none", "rising", "falling", "both"};
 
-struct gpios
-{
-    unsigned int gpio;
-    int value_fd;
-    int exported;
-    int edge;
-    int initial_thread;
-    int initial_wait;
-    int thread_added;
-    int bouncetime;
-    unsigned long long lastcall;
-    struct gpios *next;
-};
+
 struct gpios *gpio_list = NULL;
 
 // event callbacks
