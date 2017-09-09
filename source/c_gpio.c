@@ -99,8 +99,8 @@ int setup(void)
 {
     int mem_fd;
     uint32_t gpio_base;
-    uint8_t *gpio_mem;
 #if 0
+    uint8_t *gpio_mem;
     uint32_t peri_base;
     unsigned char buf[4];
     FILE *fp;
@@ -157,16 +157,10 @@ int setup(void)
     gpio_base = SUNXI_GPIO_BASE;
 #endif
     // mmap the GPIO memory registers
-    if ((mem_fd = open("/dev/mem", O_RDWR|O_SYNC) ) < 0)
-        return SETUP_DEVMEM_FAIL;
+     if ((mem_fd = open("/dev/mem", O_RDWR|O_SYNC) ) < 0)
+         return SETUP_DEVMEM_FAIL;
 
-    if ((gpio_mem = malloc(BLOCK_SIZE + (PAGE_SIZE-1))) == NULL)
-        return SETUP_MALLOC_FAIL;
-
-    if ((long int)gpio_mem % PAGE_SIZE)
-        gpio_mem += PAGE_SIZE - ((long int)gpio_mem % PAGE_SIZE);
-
-    gpio_map = (uint32_t *)mmap( (void *)gpio_mem, BLOCK_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_FIXED, mem_fd, gpio_base);
+    gpio_map = (uint32_t *)mmap( NULL, BLOCK_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED, mem_fd, gpio_base);
 
     if (gpio_map == ((void*) -1))
         return SETUP_MMAP_FAIL;
