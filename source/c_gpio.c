@@ -244,6 +244,7 @@ void setup_gpio(int gpio, int direction, int pud)
     int index = gpio & 0x1F;
     int offset = bank * 36 + ((index >> 3) << 2);
     int val_offset = ((index - ((index >> 3) << 3)) << 2);
+    set_pullupdn(gpio, pud);
     if (nanopi_PIN_MASK[bank][index] != -1)
     {
         regval = readl(offset);
