@@ -45,7 +45,7 @@ Please follow this rules before you ask a question.
  +-----+-----+----------+------+---+----++----+---+------+----------+-----+-----+
  |  H3 | wPi |   Name   | Mode | V | Physical | V | Mode | Name     | wPi |  H3 |
  +-----+-----+----------+------+---+-NanoPI M1+---+------+----------+-----+-----+
-
+ 
  +-----+----NanoPI M1 Debug UART---+----+
  |  H3 | wPi |   Name   | Mode | V | Ph |
  +-----+-----+----------+------+---+----+
@@ -54,6 +54,6 @@ Please follow this rules before you ask a question.
  |   4 |  32 |     TxD0 | ALT5 | 0 | 43 |
  |   5 |  33 |     RxD0 | ALT5 | 0 | 44 |
  +-----+-----+----------+------+---+----+
-
+ 
 In case of any questions ask them at FriendlyARM community forum: http://www.friendlyarm.com/Forum/viewforum.php?f=47
 Probably someone will help you resolve problems.
