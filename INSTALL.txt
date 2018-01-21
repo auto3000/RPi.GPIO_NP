@@ -1,22 +1,53 @@
-If you are using Raspbian, all you need to do to install the latest release is:
-$ sudo apt-get update
-$ sudo apt-get install python-rpi.gpio python3-rpi.gpio
+If you are using armbian on NanoPi Neo/Neo2:
+1. clone repository and install to your home dir
 
-------------
+  git clone https://github.com/auto3000/RPi.GPIO_NP
+  cd RPi.GPIO_NP
 
-If you are not using Raspbian, it is recommended that you install this module using pip:
-$  sudo pip install RPi.GPIO
+2. install library 
 
-------------
+   python3 setup.py install
+   or if you are using python 2.x
+   python2 setup.py install
 
-If you want to build your own version from this downloaded copy, make
-sure that you have the Python development source installed first!
+3. Test installation. Run python console and try to import RPi.GPIO
+   python 
+   >>> import RPi.GPIO as GPIO
+   
+   if above command didn't throw error everything should be ok.
+   If you received:
+       File "<stdin>", line 1, in <module>
+       ImportError: No module named 'RPi.GPIO'
+       
+   try:  
+   >>> import RPi._GPIO
+   
+   If you still get error something went wrong. Try to reboot and check if import works OK.
 
-On Raspbian:
-$ sudo apt-get install python-dev python3-dev
+5. Run your first python code using GPIO:
 
-To install the module:
+create file test.py:
+   nano ./test.py
 
-$ sudo python setup.py install
-  or
-$ sudo python3 setup.py install
+paste following code:
+   #!/usr/bin/python3
+   import RPi.GPIO as GPIO
+   import time
+   led = 12
+   GPIO.setmode(GPIO.BOARD)
+   GPIO.setwarnings(False)
+   GPIO.setup(led,GPIO.OUT)
+   i=0
+   while i<10:
+       print("LED on")
+       GPIO.output(led,GPIO.HIGH)
+       time.sleep(1)
+       print("LED off")
+       GPIO.output(led,GPIO.LOW)
+       time.sleep(1)
+       i=i+1
+
+save file with ctrl+x and run the code:
+   sudo ./test.py
+
+please remeber /dev/mem is writeprotected under Armbian and only root can access this device. This feature prevents anyone (even those in kmem group) to access GPIO ports! Original RPi.GPIO library under raspbian use /dev/gpiomem that allow anyone access to gpio memory connected  to GPIO and forbids access to other addresses. At the moment there is no solution to freely access GPIO ports. 
