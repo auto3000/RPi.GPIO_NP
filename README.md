@@ -18,7 +18,7 @@ Valid order is compatible with Physical pin numbering returned by WiringPi ("gpi
 If you want to pull pin low use "GPIO.output(12,GPIO.LOW)" - while WiringPi will call it like ("gpio write 1 0")
 
 Please follow this rules before you ask a question.
-
+```
  +-----+-----+----------+------+---+-NanoPI M1+---+------+----------+-----+-----+  
  |  H3 | wPi |   Name   | Mode | V | Physical | V | Mode | Name     | wPi |  H3 |  
  +-----+-----+----------+------+---+----++----+---+------+----------+-----+-----+  
@@ -54,6 +54,6 @@ Please follow this rules before you ask a question.
  |   4 |  32 |     TxD0 | ALT5 | 0 | 43 |  
  |   5 |  33 |     RxD0 | ALT5 | 0 | 44 |  
  +-----+-----+----------+------+---+----+  
- 
+ ```
 In case of any questions ask them at FriendlyARM community forum: http://www.friendlyarm.com/Forum/viewforum.php?f=47
 Probably someone will help you resolve problems.
