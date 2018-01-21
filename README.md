@@ -14,7 +14,7 @@ For examples and documentation, visit http://sourceforge.net/p/raspberry-gpio-py
 
 
 On NanoPi modules supported pin order is BOARD (not BCM!) - "GPIO.setmode(GPIO.BOARD)". 
-Valid order is compatible with Physical pin numbering returned by WiringPi ("gpio readall"). For example: it means that gpio pin named GPIO.1 should be invoked by number 12 "GPIO.setup(12,GPIO.OUT)" - while WiringPi will call it as 1 ("gpio mode 1 out")! 
+Valid order is compatible with Physical pin numbering returned by WiringPi ("gpio readall"). For example: it means that gpio pin named GPIO.1 should be invoked by number 12 "GPIO.setup(12,GPIO.OUT)" - while WiringPi (wPi collumn) will call it as 1 ("gpio mode 1 out")! 
 If you want to pull pin low use "GPIO.output(12,GPIO.LOW)" - while WiringPi will call it like ("gpio write 1 0")
 
 Please follow this rules before you ask a question.
