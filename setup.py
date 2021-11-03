@@ -21,7 +21,9 @@ SOFTWARE.
 """
 
 from distutils.core import setup, Extension
-
+import os
+os.environ["CC"] = "gcc-9"
+os.environ["CXX"] = "g++-9"
 classifiers = ['Development Status :: 5 - Production/Stable',
                'Operating System :: POSIX :: Linux',
                'License :: OSI Approved :: MIT License',
